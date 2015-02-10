@@ -24,48 +24,6 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>heap_1.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/portable/MemMang/heap_1.c</locationURI>
-		</link>
-		<link>
-			<name>list.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/list.c</locationURI>
-		</link>
-		<link>
-			<name>port.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/portable/CCS/ARM_CM4F/port.c</locationURI>
-		</link>
-		<link>
-			<name>portasm.asm</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/portable/CCS/ARM_CM4F/portasm.asm</locationURI>
-		</link>
-		<link>
-			<name>portmacro.h</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/portable/CCS/ARM_CM4F/portmacro.h</locationURI>
-		</link>
-		<link>
-			<name>queue.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/queue.c</locationURI>
-		</link>
-		<link>
-			<name>tasks.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/third_party/FreeRTOS/Source/tasks.c</locationURI>
-		</link>
-		<link>
-			<name>uartstdio.c</name>
-			<type>1</type>
-			<locationURI>SW_ROOT/utils/uartstdio.c</locationURI>
-		</link>
-	</linkedResources>
 	<variableList>
 		<variable>
 			<name>ORIGINAL_PROJECT_ROOT</name>
