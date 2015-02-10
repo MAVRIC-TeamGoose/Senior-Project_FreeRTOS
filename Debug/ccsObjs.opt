@@ -1,0 +1,1 @@
+"./freertos_demo.obj" "./heap_1.obj" "./list.obj" "./port.obj" "./portasm.obj" "./queue.obj" "./tasks.obj" "./test_task.obj" "./tm4c1294ncpdt_startup_ccs.obj" "./uartstdio.obj" "../tm4c1294ncpdt.cmd" -l"libc.a" -l"/home/keith/Documents/School/TCES 430/TivaWare/examples/boards/ek-tm4c123gxl/freertos_demo/ccs/../../../../../driverlib/ccs/Debug/driverlib.lib" 
