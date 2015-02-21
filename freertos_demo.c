@@ -1,5 +1,30 @@
 //*****************************************************************************
 //
+// MAVRIC sensor/motor control platform software
+//
+// Team Goose
+//     Thinh Le
+// 	   Keith Lueneburg
+//     Drew May
+//     Brandon Thomas
+//
+// Using the TI TM4C1294XL development board, this software provides an
+// interface between the MAVRIC robot's "brain" (Raspberry Pi) and the
+// robot's "body" (sensors and motors).
+//
+// Movement will be controlled through two motors, and sensor data will be read from
+// a temperature sensor, ultrasonic distance sensors, battery level, and simulated
+// sense of smell (implementation to be determined).
+//
+// For a list of used GPIO pins, see "pin_list.xlsx"
+// !! Please keep this updated when you commit !!
+//
+// Code based off of Texas Instruments example (see below).
+//
+//*****************************************************************************
+
+//*****************************************************************************
+//
 // freertos_demo.c - Simple FreeRTOS example.
 //
 // Copyright (c) 2012-2014 Texas Instruments Incorporated.  All rights reserved.
@@ -22,26 +47,31 @@
 //
 //*****************************************************************************
 
-
-//Drew was here
-//Thinh was here
-
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
+#include "inc/tm4c1294ncpdt.h"
+
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
-/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
+#include "driverlib/pwm.h"
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
 /*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
+
+/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
+
 #include "utils/uartstdio.h"
+
+#include "motors.h"
 #include "test_task.h"
 // #include "led_task.h"
 // #include "switch_task.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -83,6 +113,13 @@
 //! http://www.freertos.org/
 //
 //*****************************************************************************
+
+//****************************************************************************
+//
+// Debugging Macros
+//
+//****************************************************************************
+#define SONAR_CONNECTED 0
 
 //****************************************************************************
 //
@@ -202,7 +239,6 @@ ConfigureI2C0(void)
 }
 */
 
-
 //*****************************************************************************
 //
 // Initialize FreeRTOS and start the initial set of tasks.
@@ -237,13 +273,15 @@ main(void)
 	//
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
 
-    if(TestTaskInit() != 0)
-    {
-
-        while(1)
-        {
-        }
-    }
+	// Initialize the Ultrasonic sensor task
+	if (SONAR_CONNECTED) {
+		if(TestTaskInit() != 0) //Todo: Re-name TestTask functions/files
+		{
+			while(1)
+			{
+			}
+		}
+	}
 
 	//
 	// Start the scheduler.  This should not return.
