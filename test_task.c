@@ -307,19 +307,19 @@ TestTaskInit(void)
 	ROM_SysCtlDelay(2); // Wait before doing anything with GPIO registers
 
 	//
-	// Enable the GPIO pin for the trigger pulse (M4).
+	// Enable the GPIO pin for the trigger pulse (M5).
 	//
 	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_5);
 
 	//
-	// Enable GPIO pin for timer event capture (M4).
+	// Enable GPIO pin for timer event capture (B0).
 	//
-	ROM_GPIOPinTypeTimer(GPIO_PORTM_BASE, GPIO_PIN_4);
+	ROM_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_0);
 
 	//
-	// Configure PM4 as Timer 4 CCP0
+	// Configure PB0 as Timer 4 CCP0
 	//
-	ROM_GPIOPinConfigure(GPIO_PM4_T4CCP0);
+	ROM_GPIOPinConfigure(GPIO_PB0_T4CCP0);
 
 	//
 	// Configure timer 4A as a 16-bit event capture up-counter
