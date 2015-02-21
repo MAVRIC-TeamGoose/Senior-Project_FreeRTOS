@@ -32,10 +32,12 @@
 #include "inc/hw_types.h"
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
+/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
+/*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
 #include "utils/uartstdio.h"
 #include "test_task.h"
 // #include "led_task.h"
@@ -165,6 +167,44 @@ ConfigureUART(void)
 
 //*****************************************************************************
 //
+// Configure the I2C0 and its pins.  This must be called before I2C0SlaveTX().
+// ADDED BY DREW!!!!!!!!!!!!
+// Todo Need to add transmit/receive task
+//
+//*****************************************************************************
+/*
+void
+ConfigureI2C0(void)
+{
+	//
+	//enable I2C module 0
+	//
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C0);
+	//
+	//enable GPIO peripheral that contains I2C 0
+	//
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	//
+	// Configure the pin muxing for I2C0 functions on port B2 and B3.
+	//
+	GPIOPinConfigure(GPIO_PB2_I2C0SCL);
+	GPIOPinConfigure(GPIO_PB3_I2C0SDA);
+	//
+	// Select the I2C function for these pins.
+	//
+	GPIOPinTypeI2CSCL(GPIO_PORTB_BASE, GPIO_PIN_2);
+	GPIOPinTypeI2C(GPIO_PORTB_BASE, GPIO_PIN_3);
+	//
+	// Enable and initialize the I2C0 slave module. Set the slave address to
+	// 0x04 to match I2C master program running on Raspberry Pi
+	//
+    I2CSlaveInit(I2C0_BASE, 0x04); //Slave address of 0x04
+}
+*/
+
+
+//*****************************************************************************
+//
 // Initialize FreeRTOS and start the initial set of tasks.
 //
 //*****************************************************************************
@@ -183,6 +223,9 @@ main(void)
 	// Initialize the UART and configure it for 115,200, 8-N-1 operation.
 	//
 	ConfigureUART();
+	//
+	// Initialize the I2C and set it as slave
+	//ConfigureI2C0();  //Added by Drew!!!!!!!!!!!
 
 	//
 	// Print demo introduction.
