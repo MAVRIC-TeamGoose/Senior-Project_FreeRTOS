@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// test_task.h - Prototypes for the LED task.
+// sonar_task.h - Prototypes for the sonar task.
 //
 // Copyright (c) 2012-2014 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
@@ -22,14 +22,14 @@
 //
 //*****************************************************************************
 
-#ifndef __TEST_TASK_H__
-#define __TEST_TASK_H__
+#ifndef __SONAR_TASK_H__
+#define __SONAR_TASK_H__
 
 //*****************************************************************************
 //
-// Prototypes for the TEST task.
+// Prototypes for the sonar task.
 //
 //*****************************************************************************
-extern uint32_t TestTaskInit(void);
+extern uint32_t SonarTaskInit(void);
 
-#endif // __TEST_TASK_H__
+#endif // __SONAR_TASK_H__

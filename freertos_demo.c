@@ -68,7 +68,7 @@
 #include "utils/uartstdio.h"
 
 #include "motors.h"
-#include "test_task.h"
+#include "sonar_task.h"
 // #include "led_task.h"
 // #include "switch_task.h"
 
@@ -119,7 +119,7 @@
 // Debugging Macros
 //
 //****************************************************************************
-#define SONAR_CONNECTED 0
+#define SONAR_CONNECTED 1
 
 //****************************************************************************
 //
@@ -275,7 +275,7 @@ main(void)
 
 	// Initialize the Ultrasonic sensor task
 	if (SONAR_CONNECTED) {
-		if(TestTaskInit() != 0) //Todo: Re-name TestTask functions/files
+		if(SonarTaskInit() != 0)
 		{
 			while(1)
 			{

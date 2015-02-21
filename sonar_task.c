@@ -1,11 +1,11 @@
 //
-// test_task.c - A test task for FreeRTOS on the TM4C1294XL development board
+// sonar_task.c - A sonar task for FreeRTOS on the TM4C1294XL development board
 //
-// Prints a message over the UART at a regular interval
+// Operates the MAVRIC sonar/sonar array
 //
 // Based on Texas Instruments - "led_task.c" (see below)
 //
-// Modified by Keith Lueneburg
+// Modified by Team Goose from original Texas Instruments code (see below)
 
 //*****************************************************************************
 //
@@ -33,17 +33,21 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
+
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
+
 #include "utils/uartstdio.h"
-#include "test_task.h"
+
 #include "priorities.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -54,7 +58,7 @@
 // The stack size for the test task.
 //
 //*****************************************************************************
-#define TESTTASKSTACKSIZE        128         // Stack size in words
+#define SONARTASKSTACKSIZE        128         // Stack size in words
 
 //*****************************************************************************
 //
@@ -123,7 +127,7 @@ void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
 //
 //*****************************************************************************
 static void
-TESTTask(void *pvParameters)
+SonarTask(void *pvParameters)
 {
 	portTickType ui32WakeTime;
 	uint32_t ui32TestDelay;
@@ -284,7 +288,7 @@ TESTTask(void *pvParameters)
 //
 //*****************************************************************************
 uint32_t
-TestTaskInit(void)
+SonarTaskInit(void)
 {
 	//*****************************************************************************
 	//
@@ -294,9 +298,10 @@ TestTaskInit(void)
 	//*****************************************************************************
 
 	//
-	// Enable GPIO M
+	// Enable GPIO M and B
 	//
 	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
 	//
 	// Enable Timer 4
@@ -340,9 +345,9 @@ TestTaskInit(void)
 	//
 	    // Create the switch task.
 	    //
-	    if(xTaskCreate(TESTTask, (signed portCHAR *)"Test",
-	    		TESTTASKSTACKSIZE, NULL, tskIDLE_PRIORITY +
-	    		PRIORITY_TEST_TASK, NULL) != pdTRUE)
+	    if(xTaskCreate(SonarTask, (signed portCHAR *)"Sonar",
+	    		SONARTASKSTACKSIZE, NULL, tskIDLE_PRIORITY +
+	    		PRIORITY_SONAR_TASK, NULL) != pdTRUE)
 	    {
 	        return(1);
 	    }
