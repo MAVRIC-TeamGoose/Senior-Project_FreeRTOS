@@ -122,6 +122,34 @@ void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
 
 //*****************************************************************************
 //
+// Select which of the sonar devices to make active.
+//
+//*****************************************************************************
+void selectSonar(uint8_t select)
+{
+	// disable muxes
+		// power mux enable = 0
+		// digital mux enable = 0
+
+	// set S0
+		// power mux S0 = select & 0x1
+		// digital mux S0 = select & 0x1
+
+	// set S1
+		// power mux S1 = select & 0x2
+		// digital mux S1 = select & 0x2
+
+	// set S2
+		// power mux S2 = select & 0x4
+		// digital mux S2 = select & 0x4
+
+	// reenable muxes
+		// power mux enable = 1
+		// digital mux enable = 1
+}
+
+//*****************************************************************************
+//
 // This task toggles the user selected LED at a user selected frequency. User
 // can make the selections by pressing the left and right buttons.
 //

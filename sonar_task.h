@@ -31,5 +31,8 @@
 //
 //*****************************************************************************
 extern uint32_t SonarTaskInit(void);
+static void SonarTask(void *pvParameters);
+void delayFiveMicroseconds(uint32_t g_ui32SysClock);
+void selectSonar(uint8_t select);
 
 #endif // __SONAR_TASK_H__
