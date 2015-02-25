@@ -112,12 +112,12 @@ void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
 	// is the number of loops (3 assembly instructions each) to iterate through.
 	// Interrupts are disabled temporarily to ensure the pulse length is 5us.
 	//
-	ROM_IntMasterDisable();
+	MAP_IntMasterDisable();
 
-	//ROM_SysCtlDelay(g_ui32SysClock / 3 / 200000); // 5us delay
-	ROM_SysCtlDelay(g_ui32SysClock / 3 /   100000); //100 us
+	//MAP_SysCtlDelay(g_ui32SysClock / 3 / 200000); // 5us delay
+	MAP_SysCtlDelay(g_ui32SysClock / 3 /   100000); //100 us
 
-	ROM_IntMasterEnable();
+	MAP_IntMasterEnable();
 }
 
 //*****************************************************************************
@@ -128,24 +128,21 @@ void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
 void selectSonar(uint8_t select)
 {
 	// disable muxes
-		// power mux enable = 0
-		// digital mux enable = 0
+	// digital mux ~enable = 1
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_4, GPIO_PIN_4);
+	// power mux enable = 0
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_1, 0);
 
-	// set S0
-		// power mux S0 = select & 0x1
-		// digital mux S0 = select & 0x1
-
-	// set S1
-		// power mux S1 = select & 0x2
-		// digital mux S1 = select & 0x2
-
-	// set S2
-		// power mux S2 = select & 0x4
-		// digital mux S2 = select & 0x4
+	// mux S0 (B5) = select & 0x1
+	// mux S1 (B6) = select & 0x2
+	// mux S2 (B7) = select & 0x4
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, (select << 5));
 
 	// reenable muxes
-		// power mux enable = 1
-		// digital mux enable = 1
+	// digital mux ~enable = 0
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_4, 0);
+	// power mux enable = 1
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_1, GPIO_PIN_1);
 }
 
 //*****************************************************************************
@@ -236,7 +233,7 @@ SonarTask(void *pvParameters)
 		//
 		// Start Timer4 A
 		//
-		ROM_TimerEnable(TIMER4_BASE, TIMER_A);
+		MAP_TimerEnable(TIMER4_BASE, TIMER_A);
 
 		//
 		// Wait for first capture event
@@ -288,7 +285,7 @@ SonarTask(void *pvParameters)
 		//
 		// Stop Timer4 A.
 		//
-		ROM_TimerDisable(TIMER4_BASE, TIMER_A);
+		MAP_TimerDisable(TIMER4_BASE, TIMER_A);
 
 		//Calculates Proximity reading
 		uint32_t ui32DistanceCM; // Sensor output converted to centimeters
@@ -312,63 +309,84 @@ SonarTask(void *pvParameters)
 
 //*****************************************************************************
 //
-// Initializes the LED task.
+// Configure the timer and its pins for measuring the length of
+// ultrasonic sensor echo pulse.
 //
 //*****************************************************************************
 uint32_t
 SonarTaskInit(void)
 {
-	//*****************************************************************************
-	//
-	// Configure the timer and its pins for measuring the length of
-	// ultrasonic sensor echo pulse.
-	//
-	//*****************************************************************************
 
 	//
 	// Enable GPIO M and B
 	//
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 
 	//
 	// Enable Timer 4
 	//
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
 
 
-	ROM_SysCtlDelay(2); // Wait before doing anything with GPIO registers
+	MAP_SysCtlDelay(2); // Wait before doing anything with GPIO registers
 
 	//
 	// Enable the GPIO pin for the trigger pulse (M5).
 	//
-	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_5);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_5);
 
 	//
 	// Enable GPIO pin for timer event capture (B0).
 	//
-	ROM_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_0);
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_0);
+
+	//
+	// Enable GPIO pin for analog (power) mux enable
+	//
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_1);
+
+	//
+	// Enable GPIO pin for digital (data) mux enable
+	// NOTE: Negative logic enable (i.e. 0 -> enabled; 1 -> disabled)
+	//
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_4);
+
+	//
+	// Enable GPIO pin for mux select bit 0
+	//
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_5);
+
+	//
+	// Enable GPIO pin for mux select bit 1
+	//
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_6);
+
+	//
+	// Enable GPIO pin for mux select bit 2
+	//
+	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_7);
 
 	//
 	// Configure PB0 as Timer 4 CCP0
 	//
-	ROM_GPIOPinConfigure(GPIO_PB0_T4CCP0);
+	MAP_GPIOPinConfigure(GPIO_PB0_T4CCP0);
 
 	//
 	// Configure timer 4A as a 16-bit event capture up-counter
 	//
-	ROM_TimerConfigure(TIMER4_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_CAP_TIME_UP);
+	MAP_TimerConfigure(TIMER4_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_CAP_TIME_UP);
 
 	//
 	// Set prescaler to 255. This essentially makes
 	// the 16-bit timer a 24-bit timer.
 	//
-	ROM_TimerPrescaleSet(TIMER4_BASE, TIMER_A, 0xFF);
+	MAP_TimerPrescaleSet(TIMER4_BASE, TIMER_A, 0xFF);
 
 	//
 	// The timer should capture events on both rising and falling edges
 	//
-	ROM_TimerControlEvent(TIMER4_BASE, TIMER_A, TIMER_EVENT_BOTH_EDGES);
+	MAP_TimerControlEvent(TIMER4_BASE, TIMER_A, TIMER_EVENT_BOTH_EDGES);
 
 	//
 	    // Create the switch task.
