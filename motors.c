@@ -99,10 +99,10 @@ void ConfigureMotorGPIO()
 	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_2);
 
 	// Enable the GPIO pin for the right motor IN_B
-	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_4);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_5);
 
 	// Turn all pins off
-	MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_4, 0);
+	MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_5, 0);
 }
 
 // Set the left and right motor speeds
@@ -136,7 +136,7 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 		// right IN_A = 1
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, GPIO_PIN_2);
 		// right IN_B = 0
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_4, 0);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, 0);
 
 		rightSpeed = -rightSpeed;
 	}
@@ -145,7 +145,7 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 		// right IN_A = 0
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, 0);
 		// right IN_B = 1
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_4, GPIO_PIN_4);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, GPIO_PIN_5);
 	}
 
 	MAP_PWMPulseWidthSet(PWM0_BASE, PWM_GEN_2, (rightSpeed * 15) / 2);
