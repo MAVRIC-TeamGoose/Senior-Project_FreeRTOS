@@ -280,9 +280,8 @@ SonarTask(void *pvParameters)
 
 		//
 		// Wait for second capture event
+		// skip this wait entirely if the first timer failed
 		//
-		// TODO: make failsafe, in case timer does not respond.
-		// 		also, skip this wait entirely if the first timer failed
 		if (!sonarUnresponsive)
 		{
 			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
@@ -297,7 +296,7 @@ SonarTask(void *pvParameters)
 		//
 		// After second event, save timer A's captured value.
 		//
-		ui32PulseStopTime = sonarUnresponsive ? ui32PulseStartTime : TIMER4_TAR_R;
+		ui32PulseStopTime = sonarUnresponsive ? TIMER4_TAV_R : TIMER4_TAR_R;
 
 		//
 		// Calculate length of the pulse by subtracting the two timer values.
