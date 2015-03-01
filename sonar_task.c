@@ -79,14 +79,19 @@
 
 #define SOUND_CM_PER_S 34326
 
+// 2,000,000 clock ticks at 120 MHz is around 16.7 ms
+// which is near the expected pulse length for
+// the max range of 3m (286 cm)
+#define RESPONSE_WAIT_TICKS 2000000
+
 #define TESTS_PER_SCENARIO 10
 
 //*****************************************************************************
 //
-// Default test message delay value. Message will print once per interval
+// Default test message delay value (in ms). Message will print once per interval
 //
 //*****************************************************************************
-#define TEST_DELAY        100
+#define TEST_DELAY        1000
 
 //*****************************************************************************
 //
@@ -202,6 +207,11 @@ SonarTask(void *pvParameters)
 		uint32_t ui32PulseStartTime = 0; // Timer value at echo pulse rising edge
 		uint32_t ui32PulseStopTime = 0; // Timer value at echo pulse falling edge
 
+		uint32_t ui32waitStartTime;
+
+		// Flag for a sonar that is not working or not connected
+		bool sonarUnresponsive = false;
+
 		// // // Send a trigger pulse \\ \\ \\
 
 		// Disable context switching
@@ -231,6 +241,11 @@ SonarTask(void *pvParameters)
 		TIMER4_ICR_R |= (1 << 2);
 
 		//
+		// Save timer start time for failsafe check
+		//
+		ui32waitStartTime = TIMER4_TAV_R;
+
+		//
 		// Start Timer4 A
 		//
 		MAP_TimerEnable(TIMER4_BASE, TIMER_A);
@@ -238,7 +253,15 @@ SonarTask(void *pvParameters)
 		//
 		// Wait for first capture event
 		//
-		while((TIMER4_RIS_R & (0x1 << 2)) == 0){};
+		// TODO: make failsafe, in case sensor does not respond.
+		// add "&& TIMER5 not timed out"
+		while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+		{
+		}
+		if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
+		{
+			sonarUnresponsive = true;
+		}
 
 		//
 		// After first event, save timer A's captured value.
@@ -251,14 +274,30 @@ SonarTask(void *pvParameters)
 		TIMER4_ICR_R |= (1 << 2);
 
 		//
+		// Save timer start time for failsafe check
+		//
+		ui32waitStartTime = TIMER4_TAV_R;
+
+		//
 		// Wait for second capture event
 		//
-		while((TIMER4_RIS_R & (0x1 << 2)) == 0){};
+		// TODO: make failsafe, in case timer does not respond.
+		// 		also, skip this wait entirely if the first timer failed
+		if (!sonarUnresponsive)
+		{
+			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+			{
+			}
 
+			if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
+			{
+				sonarUnresponsive = true;
+			}
+		}
 		//
 		// After second event, save timer A's captured value.
 		//
-		ui32PulseStopTime = TIMER4_TAR_R;
+		ui32PulseStopTime = sonarUnresponsive ? ui32PulseStartTime : TIMER4_TAR_R;
 
 		//
 		// Calculate length of the pulse by subtracting the two timer values.
