@@ -220,7 +220,7 @@ SonarTask(void *pvParameters)
 		//
 		// Turn on pulse.
 		//
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, GPIO_PIN_5);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, GPIO_PIN_7);
 
 		//
 		// Delay for 5 us.
@@ -230,7 +230,7 @@ SonarTask(void *pvParameters)
 		//
 		// Turn off pulse.
 		//
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, 0);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, 0);
 
 
 		// // // Measure pulse length \\ \\ \\
@@ -371,14 +371,14 @@ SonarTaskInit(void)
 	MAP_SysCtlDelay(2); // Wait before doing anything with GPIO registers
 
 	//
-	// Enable the GPIO pin for the trigger pulse (M5).
+	// Enable the GPIO pin for the trigger pulse (M7).
 	//
-	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_5);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_7);
 
 	//
 	// Enable GPIO pin for timer event capture (B0).
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_0);
+	MAP_GPIOPinTypeTimer(GPIO_PORTM_BASE, GPIO_PIN_4);
 
 	//
 	// Enable GPIO pin for analog (power) mux enable
@@ -409,7 +409,7 @@ SonarTaskInit(void)
 	//
 	// Configure PB0 as Timer 4 CCP0
 	//
-	MAP_GPIOPinConfigure(GPIO_PB0_T4CCP0);
+	MAP_GPIOPinConfigure(GPIO_PM4_T4CCP0);
 
 	//
 	// Configure timer 4A as a 16-bit event capture up-counter
