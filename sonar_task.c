@@ -255,10 +255,11 @@ SonarTask(void *pvParameters)
 		//
 		// TODO: make failsafe, in case sensor does not respond.
 		// add "&& TIMER5 not timed out"
-		while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+		while((TIMER4_RIS_R & (0x1 << 2)) == 0 && ((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) <= RESPONSE_WAIT_TICKS)
+		//while((TIMER4_RIS_R & (0x1 << 2)) == 0 && (TIMER4_TAV_R - ui32waitStartTime) <= RESPONSE_WAIT_TICKS)
 		{
 		}
-		if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
+		if (((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) > RESPONSE_WAIT_TICKS)
 		{
 			sonarUnresponsive = true;
 		}
@@ -284,11 +285,12 @@ SonarTask(void *pvParameters)
 		//
 		if (!sonarUnresponsive)
 		{
-			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && ((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) <= RESPONSE_WAIT_TICKS)
+			//while((TIMER4_RIS_R & (0x1 << 2)) == 0 && (TIMER4_TAV_R - ui32waitStartTime) <= RESPONSE_WAIT_TICKS)
 			{
 			}
 
-			if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
+			if (((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) > RESPONSE_WAIT_TICKS)
 			{
 				sonarUnresponsive = true;
 			}
