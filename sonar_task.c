@@ -108,19 +108,19 @@ extern uint32_t g_ui32SysClock;
 
 //*****************************************************************************
 //
-// Delay for 5 us.
+// Delay for 10 us.
 //
 //*****************************************************************************
-void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
+void delayTenMicroseconds(uint32_t g_ui32SysClock) {
 	//
-	// Delay for 5 us. The value of the number provided to SysCtlDelay
+	// Delay for 10 us. The value of the number provided to SysCtlDelay
 	// is the number of loops (3 assembly instructions each) to iterate through.
 	// Interrupts are disabled temporarily to ensure the pulse length is 5us.
 	//
 	MAP_IntMasterDisable();
 
 	//MAP_SysCtlDelay(g_ui32SysClock / 3 / 200000); // 5us delay
-	MAP_SysCtlDelay(g_ui32SysClock / 3 /   100000); //100 us
+	MAP_SysCtlDelay(g_ui32SysClock / 3 /   100000); // 10 us
 
 	MAP_IntMasterEnable();
 }
@@ -225,7 +225,7 @@ SonarTask(void *pvParameters)
 		//
 		// Delay for 5 us.
 		//
-		delayFiveMicroseconds(g_ui32SysClock);
+		delayTenMicroseconds(g_ui32SysClock);
 
 		//
 		// Turn off pulse.
@@ -341,6 +341,7 @@ SonarTask(void *pvParameters)
 		// Print test results
 		//
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+		UARTprintf("unresp: %d", sonarUnresponsive);
 		UARTprintf("\nProx= %d cm\n", ui32DistanceCM);
 		xSemaphoreGive(g_pUARTSemaphore);
 	}
@@ -376,38 +377,38 @@ SonarTaskInit(void)
 	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_7);
 
 	//
-	// Enable GPIO pin for timer event capture (B0).
+	// Enable GPIO pin for timer event capture (M4).
 	//
 	MAP_GPIOPinTypeTimer(GPIO_PORTM_BASE, GPIO_PIN_4);
 
 	//
 	// Enable GPIO pin for analog (power) mux enable
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_1);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1);
 
 	//
 	// Enable GPIO pin for digital (data) mux enable
 	// NOTE: Negative logic enable (i.e. 0 -> enabled; 1 -> disabled)
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_4);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_4);
 
 	//
 	// Enable GPIO pin for mux select bit 0
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_5);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_5);
 
 	//
 	// Enable GPIO pin for mux select bit 1
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_6);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_6);
 
 	//
 	// Enable GPIO pin for mux select bit 2
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_7);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
 
 	//
-	// Configure PB0 as Timer 4 CCP0
+	// Configure PM4 as Timer 4 CCP0
 	//
 	MAP_GPIOPinConfigure(GPIO_PM4_T4CCP0);
 
