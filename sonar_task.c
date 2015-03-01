@@ -87,7 +87,7 @@
 #define TESTS_PER_SCENARIO 10
 
 // Number of sonar sensors connected
-#define NUM_SONAR 3
+#define NUM_SONAR 8
 
 //*****************************************************************************
 //
@@ -379,7 +379,13 @@ SonarTask(void *pvParameters)
 			//MAP_SysCtlDelay(g_ui32SysClock / 3 );
 		} //end for
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("\nProx= %d, %d, %d cm\n", ranges[0], ranges[1], ranges[2]);
+		UARTprintf("\nProx=", ranges[0], ranges[1], ranges[2]);
+		int j;
+		for (j = 0; j < NUM_SONAR; j++)
+		{
+			UARTprintf(" %d", ranges[j]);
+		}
+		UARTprintf(" cm\n");
 		xSemaphoreGive(g_pUARTSemaphore);
 
 		// Wait .25 seconds before firing array again
