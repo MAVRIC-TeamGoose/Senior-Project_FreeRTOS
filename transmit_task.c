@@ -32,7 +32,7 @@ static void
 TESTTask(void *pvParameters)
 {
 	portTickType ui32WakeTime;
-	uint32_t ui32TestDelay;
+	//uint32_t ui32TestDelay;
 
 	//
 	// Initialize the Test Delay to default value.
