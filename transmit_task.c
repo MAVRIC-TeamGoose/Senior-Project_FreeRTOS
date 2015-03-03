@@ -37,7 +37,7 @@ TESTTask(void *pvParameters)
 	//
 	// Initialize the Test Delay to default value.
 	//
-	ui32TestDelay = TEST_DELAY;
+	//ui32TestDelay = TEST_DELAY;
 
 	//
 	// Get the current tick count.
