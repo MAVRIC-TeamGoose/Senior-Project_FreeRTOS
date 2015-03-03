@@ -28,10 +28,10 @@
 // ADDED BY DREW!!!!!!!!!!!!
 //
 //*****************************************************************************
-static void
+/*static void
 TESTTask(void *pvParameters)
 {
-	portTickType ui32WakeTime;
+	//portTickType ui32WakeTime;
 	//uint32_t ui32TestDelay;
 
 	//
@@ -42,7 +42,7 @@ TESTTask(void *pvParameters)
 	//
 	// Get the current tick count.
 	//
-	ui32WakeTime = xTaskGetTickCount();
+	//ui32WakeTime = xTaskGetTickCount();
 
 	//
 	// Loop forever.
@@ -62,7 +62,7 @@ TESTTask(void *pvParameters)
 		// Re-enable context switching
 		taskEXIT_CRITICAL();
 	}
-}
+}*/
 
 
 
