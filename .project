@@ -27,11 +27,11 @@
 	<variableList>
 		<variable>
 			<name>ORIGINAL_PROJECT_ROOT</name>
-			<value>file:/home/keith/Documents/School/TCES%20430/TivaWare/examples/boards/ek-tm4c123gxl/freertos_demo/ccs</value>
+			<value>file:/C:/ti/TivaWare_C_Series-2.1.0.12573/examples/boards/ek-tm4c123gxl/freertos_demo/ccs</value>
 		</variable>
 		<variable>
 			<name>SW_ROOT</name>
-			<value>$%7BPARENT-5-ORIGINAL_PROJECT_ROOT%7D</value>
+			<value>file:/C:/ti/TivaWare_C_Series-2.1.0.12573</value>
 		</variable>
 	</variableList>
 </projectDescription>
