@@ -5,6 +5,7 @@
  *      Author: Drew
  *
  *  Todo Need to add transmit/receive functions
+ *  	 Add in working I2C Program
  */
 
 #include <stdbool.h>
