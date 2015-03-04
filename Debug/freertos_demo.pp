@@ -1,61 +1,67 @@
 # FIXED
 
 freertos_demo.obj: ../freertos_demo.c
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdbool.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/yvals.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdarg.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/linkage.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/_lock.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdint.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/inc/hw_memmap.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/inc/hw_types.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/gpio.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/pin_map.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/rom.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/rom_map.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/sysctl.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/uart.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/utils/uartstdio.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdarg.h
-freertos_demo.obj: ../test_task.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/FreeRTOS.h
-freertos_demo.obj: /home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stddef.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/projdefs.h
-freertos_demo.obj: /home/keith/workspace_v6_0/freertos_demo/FreeRTOSConfig.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/portable.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/portable/CCS/ARM_CM4F/portmacro.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/mpu_wrappers.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/task.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/list.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/queue.h
-freertos_demo.obj: /home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/semphr.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdbool.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/yvals.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdarg.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/linkage.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/_lock.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdint.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/inc/hw_memmap.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/inc/hw_types.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/inc/tm4c1294ncpdt.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/gpio.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/pin_map.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/pwm.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/rom.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/rom_map.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/sysctl.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/uart.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/utils/uartstdio.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdarg.h
+freertos_demo.obj: ../motors.h
+freertos_demo.obj: ../sonar_task.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/FreeRTOS.h
+freertos_demo.obj: c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stddef.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/projdefs.h
+freertos_demo.obj: C:/Users/DeepBlue/git/Senior-Project_FreeRTOS/FreeRTOSConfig.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/portable.h
+freertos_demo.obj: C:/Users/DeepBlue/git/Senior-Project_FreeRTOS/portmacro.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/mpu_wrappers.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/task.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/list.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/queue.h
+freertos_demo.obj: C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/semphr.h
 
 ../freertos_demo.c: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdbool.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/yvals.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdarg.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/linkage.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/_lock.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdint.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/inc/hw_memmap.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/inc/hw_types.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/gpio.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/pin_map.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/rom.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/rom_map.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/sysctl.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/driverlib/uart.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/utils/uartstdio.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stdarg.h: 
-../test_task.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/FreeRTOS.h: 
-/home/keith/ti/ccsv6/tools/compiler/arm_5.1.8/include/stddef.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/projdefs.h: 
-/home/keith/workspace_v6_0/freertos_demo/FreeRTOSConfig.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/portable.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/portable/CCS/ARM_CM4F/portmacro.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/mpu_wrappers.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/task.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/list.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/queue.h: 
-/home/keith/Documents/School/TCES\ 430/TivaWare/third_party/FreeRTOS/Source/include/semphr.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdbool.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/yvals.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdarg.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/linkage.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/_lock.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdint.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/inc/hw_memmap.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/inc/hw_types.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/inc/tm4c1294ncpdt.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/gpio.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/pin_map.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/pwm.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/rom.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/rom_map.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/sysctl.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/driverlib/uart.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/utils/uartstdio.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stdarg.h: 
+../motors.h: 
+../sonar_task.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/FreeRTOS.h: 
+c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/stddef.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/projdefs.h: 
+C:/Users/DeepBlue/git/Senior-Project_FreeRTOS/FreeRTOSConfig.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/portable.h: 
+C:/Users/DeepBlue/git/Senior-Project_FreeRTOS/portmacro.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/mpu_wrappers.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/task.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/list.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/queue.h: 
+C:/ti/TivaWare_C_Series-2.1.0.12573/third_party/FreeRTOS/Source/include/semphr.h: 
