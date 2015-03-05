@@ -61,16 +61,12 @@
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
-/*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
-
-/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
 
 #include "utils/uartstdio.h"
 
 #include "motors.h"
 #include "sonar_task.h"
-// #include "led_task.h"
-// #include "switch_task.h"
+#include "transmit_task.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -119,7 +115,7 @@
 // Debugging Macros
 //
 //****************************************************************************
-#define SONAR_CONNECTED 1
+#define SONAR_CONNECTED 0
 
 //****************************************************************************
 //
@@ -222,9 +218,6 @@ main(void)
 	// Initialize the UART and configure it for 115,200, 8-N-1 operation.
 	//
 	ConfigureUART();
-	//
-	// Initialize the I2C and set it as slave
-	//ConfigureI2C0();  //Added by Drew!!!!!!!!!!!
 
 	//
 	// Print demo introduction.
@@ -245,6 +238,18 @@ main(void)
 			}
 		}
 	}
+
+	if(TransmitTaskInit() != 0)
+	{
+		while(1)
+		{
+		}
+	}
+
+    //
+    // Enable processor interrupts.
+    //
+    ROM_IntMasterEnable();
 
 	//
 	// Start the scheduler.  This should not return.
