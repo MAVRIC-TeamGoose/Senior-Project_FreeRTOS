@@ -1,18 +1,16 @@
 /*
- * transmit_task.h
+ * adc_setup.h
  *
- * Date: Mar 4, 2015
+ * Date: Mar 5, 2015
  * Author: Drew
  */
-
-#ifndef TRANSMIT_TASK_H_
-#define TRANSMIT_TASK_H_
 
 //*****************************************************************************
 //
 // Prototypes for the Transmit task.
 //
 //*****************************************************************************
-extern uint32_t TransmitTaskInit(void);
-void ConfigureI2C0(void);
-#endif /* TRANSMIT_TASK_H_ */
+extern uint32_t ADCInit(void);
+void ConfigureADC(void);
+void ConfigureTempTimer(void);
+void Timer1IntHandler(void);

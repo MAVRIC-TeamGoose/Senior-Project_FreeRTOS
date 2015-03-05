@@ -67,6 +67,7 @@
 #include "motors.h"
 #include "sonar_task.h"
 #include "transmit_task.h"
+#include "adc_setup.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -115,7 +116,7 @@
 // Debugging Macros
 //
 //****************************************************************************
-#define SONAR_CONNECTED 1
+#define SONAR_CONNECTED 0
 
 //****************************************************************************
 //
@@ -229,20 +230,27 @@ main(void)
 	//
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
 
+	//Initialize the ADC functionality
+	if (ADCInit() != 0)
+	{
+		UARTprintf("\nADC failed to initialize\n");
+	}
 	// Initialize the Ultrasonic sensor task
 	if (SONAR_CONNECTED) {
 		if(SonarTaskInit() != 0)
 		{
 			while(1)
 			{
+				UARTprintf("\nSonar task failed to initialize\n");
 			}
 		}
 	}
-
+	// Initialize the I2C transmitting task
 	if(TransmitTaskInit() != 0)
 	{
 		while(1)
 		{
+			UARTprintf("\nTransmit task failed to initialize\n");
 		}
 	}
 

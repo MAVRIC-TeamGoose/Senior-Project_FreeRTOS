@@ -8,6 +8,22 @@
  *
  * Pi Code: Located in GitHub repository
  *
+ * Todo
+ * Write state machine to read input from Pi and send relevant data
+ * Send proximity data from transmit task
+ *
+ * Send flags when new data arrives???
+ * Add macros to double check validity of data
+ */
+
+/*
+ * Data Sent            |   Complete
+ * ---------------------|-----------------
+ * Temperature value    |       Y
+ * Proximity values     |
+ * Battery Level values |
+ * Smell values         |
+ * Sound values         |
  */
 
 /*
@@ -49,6 +65,31 @@
 
 //*****************************************************************************
 //
+// Data type macros to send to Pi before sending data.
+//
+//*****************************************************************************
+#define TEMPERATUREDATA             0x1
+
+#define PROX1DATA                   0x2
+#define PROX2DATA                   0x3
+#define PROX3DATA                   0x4
+#define PROX4DATA                   0x5
+#define PROX5DATA                   0x6
+#define PROX6DATA                   0x7
+#define PROX7DATA                   0x8
+#define PROX8DATA                   0x9
+
+#define BATTDATA                    0xA
+
+#define LEFTSMELLDATA               0xB
+#define RIGHTSMELLDATA              0xC
+
+#define LEFTSOUNDDATA               0xD
+#define RIGHTSOUNDDATA              0xE
+
+
+//*****************************************************************************
+//
 // The stack size for the test task.
 //
 //*****************************************************************************
@@ -72,13 +113,11 @@
 // ADC Value.
 //
 //*****************************************************************************
-uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
+extern uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
 
-uint8_t adc_i2c[2];    //Two byte array to hold adc value
+uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value and add mutex to it)
 
 extern uint32_t g_ui32SysClock;
-
-extern xSemaphoreHandle g_pUARTSemaphore;
 
 //*****************************************************************************
 //
@@ -117,93 +156,6 @@ ConfigureI2C0(void)
 	MAP_I2CSlaveInit(I2C0_BASE, SLAVE_ADDRESS);
 }
 
-//Should remove from transmit task
-void
-ConfigureADC()
-{
-    //
-    // Setup ADC Using ROM functions
-    //
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0); //Enable ADC0
-	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE); //Enable GPIO E
-	ROM_ADCHardwareOversampleConfigure(ADC0_BASE, 64); //Configure hardware oversampling to sample 64 times and average
-	HWREG(ADC0_BASE + ADC_O_PC) = ADC_PC_SR_125K; //Set ADC speed to 125K
-
-	ROM_GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3); //Enable ADC on PE3
-	ROM_ADCSequenceDisable(ADC0_BASE, 3); //Disable sequence before configuring it
-	ROM_ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0); //Use sequencer 3 to trigger at all times with a priority of 0 (highest)
-	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_TS | ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
-
-	ROM_ADCSequenceEnable(ADC0_BASE, 3); //Enable the sequencer
-
-    //
-    // Clear the interrupt status flag.  This is done to make sure the
-    // interrupt flag is cleared before we sample.
-    //
-    MAP_ADCIntClear(ADC0_BASE, 3);
-}
-
-//Should remove from the transmit task
-void
-ConfigureTempTimer()
-{
-    //
-    // Enable ADC Timer
-    //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER1); //Temperature
-
-    ROM_TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
-
-    MAP_TimerLoadSet(TIMER1_BASE, TIMER_A, g_ui32SysClock);  //Temp      1000ms
-
-    ROM_IntEnable(INT_TIMER1A); //Temp
-
-    ROM_TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT); //Temp
-
-    ROM_TimerEnable(TIMER1_BASE, TIMER_A); //Temp
-}
-
-//*****************************************************************************
-//
-// The interrupt handler for the ADC. (temperature)
-//
-//*****************************************************************************
-void
-Timer1IntHandler(void)
-{
-    //
-    // Clear the timer interrupt.
-    //
-    ROM_TimerIntClear(TIMER1_BASE, TIMER_TIMA_TIMEOUT);
-
-    //
-    // Trigger ADC Conversion
-    //
-    ROM_ADCProcessorTrigger(ADC0_BASE, 3);
-
-    //
-    //Wait for ADC conversion to complete
-    //
-    while(!ROM_ADCIntStatus(ADC0_BASE, 3, false))
-    { //Wait for ADC to finish sampling
-    }
-
-	// Disable context switching
-	taskENTER_CRITICAL();
-    //
-    // Clear ADC interrupt
-    //
-    ROM_ADCIntClear(ADC0_BASE, 3);
-
-	ROM_ADCSequenceDataGet(ADC0_BASE, 3, adc_value); //Get data from Sequencer 3
-
-	//Convert adc into two byte array
-	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
-	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
-	// Enable context switching
-	taskEXIT_CRITICAL();
-}
-
 //*****************************************************************************
 //
 // This task transmits data read in through the ADC through an I2C interface.
@@ -218,6 +170,10 @@ TransmitTask(void *pvParameters)
         // Wait until slave data is requested
         //
         while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+
+    	//Convert adc into two byte array
+    	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
+    	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
 
         //Note temp is recorded into a 32-bit value but is actually 12 bits.
         //Break temp into bytes and send lower two bytes
@@ -241,14 +197,6 @@ TransmitTaskInit(void)
 	// Initialize I2C
 	//
 	ConfigureI2C0();
-    //
-    // Initialize ADC
-    //
-    ConfigureADC();
-    //
-    // Enable Temperature Timer.
-    //
-    ConfigureTempTimer();
 
     // Create the switch task.
     //
