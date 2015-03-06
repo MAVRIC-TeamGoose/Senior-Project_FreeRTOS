@@ -86,6 +86,9 @@
 
 #define TESTS_PER_SCENARIO 10
 
+// Number of sonar sensors connected
+#define NUM_SONAR 8
+
 //*****************************************************************************
 //
 // Default test message delay value (in ms). Message will print once per interval
@@ -108,19 +111,19 @@ extern uint32_t g_ui32SysClock;
 
 //*****************************************************************************
 //
-// Delay for 5 us.
+// Delay for 10 us.
 //
 //*****************************************************************************
-void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
+void delayTenMicroseconds(uint32_t g_ui32SysClock) {
 	//
-	// Delay for 5 us. The value of the number provided to SysCtlDelay
+	// Delay for 10 us. The value of the number provided to SysCtlDelay
 	// is the number of loops (3 assembly instructions each) to iterate through.
 	// Interrupts are disabled temporarily to ensure the pulse length is 5us.
 	//
 	MAP_IntMasterDisable();
 
 	//MAP_SysCtlDelay(g_ui32SysClock / 3 / 200000); // 5us delay
-	MAP_SysCtlDelay(g_ui32SysClock / 3 /   100000); //100 us
+	MAP_SysCtlDelay(g_ui32SysClock / 3 /   100000); // 10 us
 
 	MAP_IntMasterEnable();
 }
@@ -133,21 +136,25 @@ void delayFiveMicroseconds(uint32_t g_ui32SysClock) {
 void selectSonar(uint8_t select)
 {
 	// disable muxes
+
 	// digital mux ~enable = 1
 	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_4, GPIO_PIN_4);
-	// power mux enable = 0
-	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_1, 0);
 
-	// mux S0 (B5) = select & 0x1
-	// mux S1 (B6) = select & 0x2
-	// mux S2 (B7) = select & 0x4
-	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7, (select << 5));
+	// power mux enable = 0 (power muxing not used currently)
+	// MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5, 0);
+
+	// mux S0 (K0) = select & 0x1
+	// mux S1 (K1) = select & 0x2
+	// mux S2 (K2) = select & 0x4
+	MAP_GPIOPinWrite(GPIO_PORTK_BASE, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2, (select));
 
 	// reenable muxes
+
 	// digital mux ~enable = 0
 	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_4, 0);
-	// power mux enable = 1
-	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_1, GPIO_PIN_1);
+
+	// power mux enable = 1 (power muxing not used currently)
+	MAP_GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_5, GPIO_PIN_5);
 }
 
 //*****************************************************************************
@@ -204,145 +211,187 @@ SonarTask(void *pvParameters)
 		testCount++;
 */
 
-		uint32_t ui32PulseStartTime = 0; // Timer value at echo pulse rising edge
-		uint32_t ui32PulseStopTime = 0; // Timer value at echo pulse falling edge
-
-		uint32_t ui32waitStartTime;
-
-		// Flag for a sonar that is not working or not connected
-		bool sonarUnresponsive = false;
-
-		// // // Send a trigger pulse \\ \\ \\
-
-		// Disable context switching
-		taskENTER_CRITICAL();
-
 		//
-		// Turn on pulse.
+		// Cycle through each of the sonar sensors
 		//
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, GPIO_PIN_7);
-
-		//
-		// Delay for 5 us.
-		//
-		delayFiveMicroseconds(g_ui32SysClock);
-
-		//
-		// Turn off pulse.
-		//
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, 0);
-
-
-		// // // Measure pulse length \\ \\ \\
-
-		//
-		// Clear Timer A capture flag
-		//
-		TIMER4_ICR_R |= (1 << 2);
-
-		//
-		// Save timer start time for failsafe check
-		//
-		ui32waitStartTime = TIMER4_TAV_R;
-
-		//
-		// Start Timer4 A
-		//
-		MAP_TimerEnable(TIMER4_BASE, TIMER_A);
-
-		//
-		// Wait for first capture event
-		//
-		// TODO: make failsafe, in case sensor does not respond.
-		// add "&& TIMER5 not timed out"
-		while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+		uint8_t i;
+		int32_t ranges[NUM_SONAR];
+		for (i = 0; i < NUM_SONAR; i++)
 		{
-		}
-		if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
-		{
-			sonarUnresponsive = true;
-		}
+			uint32_t ui32PulseStartTime = 0; // Timer value at echo pulse rising edge
+			uint32_t ui32PulseStopTime = 0; // Timer value at echo pulse falling edge
 
-		//
-		// After first event, save timer A's captured value.
-		//
-		ui32PulseStartTime = TIMER4_TAR_R;
+			uint32_t ui32waitStartTime;
 
-		//
-		// Clear Timer A capture flag
-		//
-		TIMER4_ICR_R |= (1 << 2);
+			// Flag for a sonar that is not working or not connected
+			bool sonarUnresponsive = false;
 
-		//
-		// Save timer start time for failsafe check
-		//
-		ui32waitStartTime = TIMER4_TAV_R;
+			// Select sonar i
+			selectSonar(i);
 
-		//
-		// Wait for second capture event
-		//
-		// TODO: make failsafe, in case timer does not respond.
-		// 		also, skip this wait entirely if the first timer failed
-		if (!sonarUnresponsive)
-		{
-			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && TIMER4_TAV_R - ui32waitStartTime <= RESPONSE_WAIT_TICKS)
+			//let sonar settle
+			MAP_SysCtlDelay(g_ui32SysClock / 3 / 50);
+
+			// // // Send a trigger pulse \\ \\ \\
+
+			// Disable context switching
+			taskENTER_CRITICAL();
+
+			//
+			// Turn on pulse.
+			//
+			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, GPIO_PIN_7);
+
+			//
+			// Delay for 5 us.
+			//
+			delayTenMicroseconds(g_ui32SysClock);
+
+			//
+			// Turn off pulse.
+			//
+			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, 0);
+
+
+			// // // Measure pulse length \\ \\ \\
+
+			//
+			// Clear Timer A capture flag
+			//
+			TIMER4_ICR_R |= (1 << 2);
+
+			//
+			// Save timer start time for failsafe check
+			//
+			ui32waitStartTime = TIMER4_TAV_R;
+
+			//
+			// Start Timer4 A
+			//
+			MAP_TimerEnable(TIMER4_BASE, TIMER_A);
+
+			//
+			// Wait for first capture event
+			// Skip this wait entirely if the first timer failed
+			//
+			while((TIMER4_RIS_R & (0x1 << 2)) == 0 && ((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) <= RESPONSE_WAIT_TICKS)
+				//while((TIMER4_RIS_R & (0x1 << 2)) == 0 && (TIMER4_TAV_R - ui32waitStartTime) <= RESPONSE_WAIT_TICKS)
 			{
 			}
 
-			if (TIMER4_TAV_R - ui32waitStartTime > RESPONSE_WAIT_TICKS)
+			if (((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) > RESPONSE_WAIT_TICKS)
 			{
 				sonarUnresponsive = true;
 			}
-		}
-		//
-		// After second event, save timer A's captured value.
-		//
-		ui32PulseStopTime = sonarUnresponsive ? ui32PulseStartTime : TIMER4_TAR_R;
 
-		//
-		// Calculate length of the pulse by subtracting the two timer values.
-		// Note that even if stop time is less than start time, due to the
-		// timer overflowing and starting over at 0, the 24 LSBs of our result are
-		// still valid
-		//
-		g_ui32PulseLengthTicks = (ui32PulseStopTime - ui32PulseStartTime) & 0x0FFFFFF;
+			//
+			// After first event, save timer A's captured value.
+			//
+			ui32PulseStartTime = TIMER4_TAR_R;
 
-		// Re-enable context switching
-		taskEXIT_CRITICAL();
+			//
+			// Clear Timer A capture flag
+			//
+			TIMER4_ICR_R |= (1 << 2);
 
-		//
-		// Print the start time, stop time, and pulse length
-		//
-		//	UARTprintf("Pulse length: %d - %d = %d\n", ui32PulseStopTime,
-		//		ui32PulseStartTime, ui32PulseLengthTicks);
+			//
+			// Save timer start time for failsafe check
+			//
+			ui32waitStartTime = TIMER4_TAV_R;
 
-		//
-		// Print the distance
-		//
-		//UARTprintf("Distance: %d\n", ui32DistanceCM);
+			//
+			// Wait for second capture event
+			// Skip this wait entirely if the first timer failed
+			//
+			if (!sonarUnresponsive)
+			{
+				while((TIMER4_RIS_R & (0x1 << 2)) == 0 && ((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) <= RESPONSE_WAIT_TICKS)
+					//while((TIMER4_RIS_R & (0x1 << 2)) == 0 && (TIMER4_TAV_R - ui32waitStartTime) <= RESPONSE_WAIT_TICKS)
+				{
+				}
 
-		//
-		// Stop Timer4 A.
-		//
-		MAP_TimerDisable(TIMER4_BASE, TIMER_A);
+				if (((TIMER4_TAV_R - ui32waitStartTime) & 0x0FFFFFF) > RESPONSE_WAIT_TICKS)
+				{
+					sonarUnresponsive = true;
+				}
+			}
+			//
+			// After second event, save timer A's captured value.
+			//
+			ui32PulseStopTime = sonarUnresponsive ? TIMER4_TAV_R : TIMER4_TAR_R;
 
-		//Calculates Proximity reading
-		uint32_t ui32DistanceCM; // Sensor output converted to centimeters
-		ui32DistanceCM = 0;
+			//
+			// Calculate length of the pulse by subtracting the two timer values.
+			// Note that even if stop time is less than start time, due to the
+			// timer overflowing and starting over at 0, the 24 LSBs of our result are
+			// still valid
+			//
+			g_ui32PulseLengthTicks = (ui32PulseStopTime - ui32PulseStartTime) & 0x0FFFFFF;
 
-		// pulse length / system clock = pulse length in seconds
-		// pulse length in seconds / (1 / sound speed cm per s) = total wave flight distance
-		// total distance / 2 = distance from sensor
-		//
-		ui32DistanceCM = g_ui32PulseLengthTicks / 2 / (g_ui32SysClock / SOUND_CM_PER_S);
+			// Re-enable context switching
+			taskEXIT_CRITICAL();
 
-		//
-		// Guard UART from concurrent access.
-		// Print test results
-		//
+			//
+			// Print the start time, stop time, and pulse length
+			//
+			//	UARTprintf("Pulse length: %d - %d = %d\n", ui32PulseStopTime,
+			//		ui32PulseStartTime, ui32PulseLengthTicks);
+
+			//
+			// Print the distance
+			//
+			//UARTprintf("Distance: %d\n", ui32DistanceCM);
+
+			//
+			// Stop Timer4 A.
+			//
+			MAP_TimerDisable(TIMER4_BASE, TIMER_A);
+
+			//Calculates Proximity reading
+			int32_t distanceCM; // Sensor output converted to centimeters
+			distanceCM = 0;
+
+			//
+			// pulse length / system clock = pulse length in seconds
+			// pulse length in seconds / (1 / sound speed cm per s) = total wave flight distance
+			// total distance / 2 = distance from sensor
+			//
+			if (sonarUnresponsive)
+			{
+				distanceCM = 999;
+			}
+			else
+			{
+				distanceCM = g_ui32PulseLengthTicks / 2 / (g_ui32SysClock / SOUND_CM_PER_S);
+			}
+
+			ranges[i] = distanceCM;
+			//
+			// Guard UART from concurrent access.
+			// Print test results
+			//
+//			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+			//UARTprintf("\nunresp: %d", sonarUnresponsive);
+			//UARTprintf("\nProx= %d cm\n", distanceCM);
+	//		xSemaphoreGive(g_pUARTSemaphore);
+
+			// Wait between sonars
+			//MAP_SysCtlDelay(g_ui32SysClock / 3 );
+		} //end for
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-		UARTprintf("\nProx= %d cm\n", ui32DistanceCM);
+		UARTprintf("\nProx=", ranges[0], ranges[1], ranges[2]);
+		int j;
+		for (j = 0; j < NUM_SONAR; j++)
+		{
+			UARTprintf(" %d", ranges[j]);
+		}
+		UARTprintf(" cm\n");
 		xSemaphoreGive(g_pUARTSemaphore);
+
+		// Wait .25 seconds before firing array again
+		MAP_SysCtlDelay(g_ui32SysClock / 3 / 4 );
+
+
 	}
 }
 
@@ -361,6 +410,7 @@ SonarTaskInit(void)
 	//
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
 
 	//
 	// Enable Timer 4
@@ -376,38 +426,38 @@ SonarTaskInit(void)
 	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_7);
 
 	//
-	// Enable GPIO pin for timer event capture (B0).
+	// Enable GPIO pin for timer event capture (M4).
 	//
 	MAP_GPIOPinTypeTimer(GPIO_PORTM_BASE, GPIO_PIN_4);
 
 	//
-	// Enable GPIO pin for analog (power) mux enable
+	// Enable GPIO pin for analog (power) mux enable (not used currently)
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_1);
+	//MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_5);
 
 	//
 	// Enable GPIO pin for digital (data) mux enable
 	// NOTE: Negative logic enable (i.e. 0 -> enabled; 1 -> disabled)
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_4);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_4);
 
 	//
 	// Enable GPIO pin for mux select bit 0
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_5);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTK_BASE, GPIO_PIN_0);
 
 	//
 	// Enable GPIO pin for mux select bit 1
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_6);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTK_BASE, GPIO_PIN_1);
 
 	//
 	// Enable GPIO pin for mux select bit 2
 	//
-	MAP_GPIOPinTypeTimer(GPIO_PORTB_BASE, GPIO_PIN_7);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTK_BASE, GPIO_PIN_2);
 
 	//
-	// Configure PB0 as Timer 4 CCP0
+	// Configure PM4 as Timer 4 CCP0
 	//
 	MAP_GPIOPinConfigure(GPIO_PM4_T4CCP0);
 
