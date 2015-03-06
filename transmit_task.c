@@ -1,7 +1,7 @@
 /*
  * Author : Drew May
- * Date   : March 5th 2015
- * Version: 1.0
+ * Date   : March 6th 2015
+ * Version: 0.5
  * Summary: Tiva TM4C receives raw temperature from internal temperature module
  * 			and transmits two bytes worth of information through I2C.
  * 			In this example the master is a Raspberry Pi.
@@ -9,8 +9,10 @@
  * Pi Code: Located in GitHub repository
  *
  * Todo
- * Write state machine to read input from Pi and send relevant data
  * Send proximity data from transmit task
+ * Send battery data from transmit task
+ * Send smell data from transmit task
+ * Send sound data from transmit tasks
  */
 
 /*
@@ -62,7 +64,7 @@
 
 //*****************************************************************************
 //
-// Data type macros to send to Pi before sending data.
+// Data type macros to receive from Pi before sending data.
 //
 //*****************************************************************************
 #define TEMPERATUREDATA             0x1
@@ -83,6 +85,8 @@
 
 #define LEFTSOUNDDATA               0xD
 #define RIGHTSOUNDDATA              0xE
+
+#define MOTORDATA                   0xF
 
 
 //*****************************************************************************
@@ -107,14 +111,19 @@
 
 //*****************************************************************************
 //
-// ADC Value.
+// ADC Values.
 //
 //*****************************************************************************
 extern uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
 
 uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value and add mutex to it)
 
-extern uint32_t g_ui32SysClock;
+//*****************************************************************************
+//
+// Proximity Values.
+//
+//*****************************************************************************
+//Todo
 
 //*****************************************************************************
 //
@@ -174,7 +183,7 @@ TransmitTask(void *pvParameters)
     	//
     	while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_RREQ));
 
-    	MAP_I2CSlaveDataGet(I2C0_BASE, data_type);
+    	data_type = MAP_I2CSlaveDataGet(I2C0_BASE);
 
     	switch(data_type) { //Switch statement for sending different data points
     		case TEMPERATUREDATA :
@@ -243,6 +252,10 @@ TransmitTask(void *pvParameters)
     		case RIGHTSOUNDDATA :
     			//Expressions
     			break;
+
+    		case MOTORDATA :
+    			//Motor data is about to be sent
+    			//Change PWM outputs accordingly
     	}
     }
 }
