@@ -11,9 +11,6 @@
  * Todo
  * Write state machine to read input from Pi and send relevant data
  * Send proximity data from transmit task
- *
- * Send flags when new data arrives???
- * Add macros to double check validity of data
  */
 
 /*
@@ -160,28 +157,93 @@ ConfigureI2C0(void)
 //
 // This task transmits data read in through the ADC through an I2C interface.
 //
+// Should wait for a byte to be sent that corresponds with the type of data
+// requested and then send that data.
+//
 //*****************************************************************************
 static void
 TransmitTask(void *pvParameters)
 {
+	//Type of data being requested.
+	uint8_t data_type = 0;
+
     while(1) //Loop for all eternity
     {
-        //
-        // Wait until slave data is requested
-        //
-        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	//
+    	// Wait until data type is received.
+    	//
+    	while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_RREQ));
 
-    	//Convert adc into two byte array
-    	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
-    	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
+    	MAP_I2CSlaveDataGet(I2C0_BASE, data_type);
 
-        //Note temp is recorded into a 32-bit value but is actually 12 bits.
-        //Break temp into bytes and send lower two bytes
-        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[0]); //Send back the temperature
+    	switch(data_type) { //Switch statement for sending different data points
+    		case TEMPERATUREDATA :
 
-        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	    	//Convert adc reading into two byte array
+    	    	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
+    	    	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
 
-        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[1]); //Send the lowest 8 bits
+    	        //
+    	        // Wait until slave data is requested
+    	        //
+    	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[0]); //Send back the temperature
+    	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[1]); //Send the lowest 8 bits
+    			break;
+
+    		case PROX1DATA :
+    			//Expressions
+    			break;
+
+    		case PROX2DATA :
+    			//Expressions
+    			break;
+
+    		case PROX3DATA :
+    			//Expressions
+    			break;
+
+    		case PROX4DATA :
+    			//Expressions
+    			break;
+
+    		case PROX5DATA :
+    			//Expressions
+    			break;
+
+    		case PROX6DATA :
+    			//Expressions
+    			break;
+
+    		case PROX7DATA :
+    			//Expressions
+    			break;
+
+    		case PROX8DATA :
+    			//Expressions
+    			break;
+
+    		case BATTDATA :
+    			//Expressions
+    			break;
+
+    		case LEFTSMELLDATA :
+    			//Expressions
+    			break;
+
+    		case RIGHTSMELLDATA :
+    			//Expressions
+    			break;
+
+    		case LEFTSOUNDDATA :
+    			//Expressions
+    			break;
+
+    		case RIGHTSOUNDDATA :
+    			//Expressions
+    			break;
+    	}
     }
 }
 
