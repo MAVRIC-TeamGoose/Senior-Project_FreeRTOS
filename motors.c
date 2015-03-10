@@ -45,7 +45,7 @@ void ConfigurePWM()
 	// Divide 120MHz system clock by 8
 	// 20 kHz PWM will be achieved by 750 (divided) clock ticks
 	// 20 kHz is the maximum allowed by the Pololu motor controller
-	MAP_PWMClockSet(PWM0_BASE, PWM_SYSCLK_DIV_8);
+	MAP_PWMClockSet(PWM0_BASE, PWM_SYSCLK_DIV_8);  // slow down
 
 	// Countdown Mode
 	PWM0_CTL_R = 0;
