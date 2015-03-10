@@ -256,6 +256,7 @@ TransmitTask(void *pvParameters)
     		case MOTORDATA :
     			//Motor data is about to be sent
     			//Change PWM outputs accordingly
+    			break;
     	}
     }
 }
