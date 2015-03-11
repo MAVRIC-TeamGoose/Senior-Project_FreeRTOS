@@ -9,7 +9,8 @@
  * Pi Code: Located in GitHub repository
  *
  * Todo
- * Send proximity data from transmit task
+ * Turn I2C while loops into interrupt that feeds semaphore
+ *
  * Send battery data from transmit task
  * Send smell data from transmit task
  * Send sound data from transmit tasks
@@ -123,7 +124,7 @@ uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value 
 // Proximity Values.
 //
 //*****************************************************************************
-//Todo
+extern int32_t ranges[8];
 
 //*****************************************************************************
 //
@@ -160,6 +161,25 @@ ConfigureI2C0(void)
 	// Set the slave address to SLAVE_ADDRESS.
 	//
 	MAP_I2CSlaveInit(I2C0_BASE, SLAVE_ADDRESS);
+}
+
+void
+sendProx(uint8_t sensor)
+{
+	//Convert proximity into two byte array
+	uint8_t prox_i2c[2];    //Two byte array to hold prox value
+	//extern uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
+	//adc_i2c[0] = (*adc_value & 0xff00) >> 8;
+	//adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
+	prox_i2c[0] = (ranges[sensor - 2] & 0xff00) >> 8;
+	prox_i2c[1] = (ranges[sensor - 2] & 0x00ff); //Lowest 8 bits
+    //
+    // Wait until slave data is requested
+    //
+    while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    MAP_I2CSlaveDataPut(I2C0_BASE, prox_i2c[0]); //Send back the proximity
+    while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    MAP_I2CSlaveDataPut(I2C0_BASE, prox_i2c[1]); //Send the lowest 8 bits
 }
 
 //*****************************************************************************
@@ -202,35 +222,43 @@ TransmitTask(void *pvParameters)
     			break;
 
     		case PROX1DATA :
-    			//Expressions
+    			//Call prox function
+    			sendProx(PROX1DATA);
     			break;
 
     		case PROX2DATA :
     			//Expressions
+    			sendProx(PROX2DATA);
     			break;
 
     		case PROX3DATA :
     			//Expressions
+    			sendProx(PROX3DATA);
     			break;
 
     		case PROX4DATA :
     			//Expressions
+    			sendProx(PROX4DATA);
     			break;
 
     		case PROX5DATA :
     			//Expressions
+    			sendProx(PROX5DATA);
     			break;
 
     		case PROX6DATA :
     			//Expressions
+    			sendProx(PROX6DATA);
     			break;
 
     		case PROX7DATA :
     			//Expressions
+    			sendProx(PROX7DATA);
     			break;
 
     		case PROX8DATA :
     			//Expressions
+    			sendProx(PROX8DATA);
     			break;
 
     		case BATTDATA :

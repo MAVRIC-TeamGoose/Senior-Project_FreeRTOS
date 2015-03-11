@@ -109,6 +109,8 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 
 extern uint32_t g_ui32SysClock;
 
+int32_t ranges[NUM_SONAR];
+
 //*****************************************************************************
 //
 // Delay for 10 us.
@@ -215,7 +217,7 @@ SonarTask(void *pvParameters)
 		// Cycle through each of the sonar sensors
 		//
 		uint8_t i;
-		int32_t ranges[NUM_SONAR];
+
 		for (i = 0; i < NUM_SONAR; i++)
 		{
 			uint32_t ui32PulseStartTime = 0; // Timer value at echo pulse rising edge
