@@ -1,8 +1,8 @@
 /*
  * transmit_task.h
  *
- *  Created on: Feb 24, 2015
- *      Author: Drew
+ * Date: Mar 4, 2015
+ * Author: Drew
  */
 
 #ifndef TRANSMIT_TASK_H_
@@ -14,8 +14,5 @@
 //
 //*****************************************************************************
 extern uint32_t TransmitTaskInit(void);
-
 void ConfigureI2C0(void);
-
-
 #endif /* TRANSMIT_TASK_H_ */
