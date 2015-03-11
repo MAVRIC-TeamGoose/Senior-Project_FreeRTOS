@@ -61,6 +61,10 @@
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
+#include "driverlib/interrupt.h"
+#include "inc/hw_ints.h"
+
+
 /*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
 
 /*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
@@ -116,10 +120,22 @@
 
 //****************************************************************************
 //
+// Motor Speeds
+//
+//****************************************************************************
+
+int32_t leftSpeed;
+int32_t rightSpeed;
+
+
+//****************************************************************************
+//
 // Debugging Macros
 //
 //****************************************************************************
 #define SONAR_CONNECTED 1
+#define TIMER_A                 0x000000ff  // Timer A
+#define TIMER_TIMA_TIMEOUT      0x00000001  // TimerA time out interrupt
 
 //****************************************************************************
 //
@@ -127,7 +143,8 @@
 //
 //****************************************************************************
 uint32_t g_ui32SysClock;
-
+uint32_t currentRightSpeed = 0;
+uint32_t currentLeftSpeed = 0;
 //*****************************************************************************
 //
 // The mutex that protects concurrent access of UART from multiple tasks.
@@ -201,6 +218,34 @@ ConfigureUART(void)
 	//
 	UARTStdioConfig(0, 115200, 16000000);
 }
+//****************************************************************************
+// Timer 3 Handler; updates leftSpeed and rightSpeed
+//****************************************************************************
+
+void
+Timer3IntHandler(void)
+{
+	UARTprintf("\n");
+	UARTprintf("\n");
+	UARTprintf("ENTERED TIMER 3");
+	UARTprintf("ENTERED TIMER 3");
+	UARTprintf("ENTERED TIMER 3");
+
+
+//ROM_TimerIntClear(TIMER3_BASE, TIMER_TIMA_TIMEOUT);
+}
+uint32_t
+speedDifference(uint32_t x, uint32_t y)
+{
+	uint32_t temp = 0;
+	temp = x - y;
+	if(temp <= 0){
+		return -temp;
+	} else {
+		return temp;
+	}
+}
+
 
 //*****************************************************************************
 //
@@ -218,6 +263,7 @@ main(void)
 			SYSCTL_USE_PLL |
 			SYSCTL_CFG_VCO_480), 120000000);
 
+
 	//
 	// Initialize the UART and configure it for 115,200, 8-N-1 operation.
 	//
@@ -229,7 +275,76 @@ main(void)
 	//
 	// Print demo introduction.
 	//
-	UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
+	//UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
+
+
+	/**
+	 * Motor Control Code Section
+	 * delays are added to functions to allow proper initialization
+	 */
+	//Enable Timer 3
+	ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER3);
+	//Enable Timer 3 to go off every 100 ms
+	ROM_TimerLoadSet(TIMER3_BASE, TIMER_A, g_ui32SysClock/10);
+	//Enable Interrupts on Timer3
+	ROM_IntEnable(INT_TIMER3A);
+	//Enable Interrupts on Timer3 to go off according to a timer
+	ROM_TimerIntEnable(TIMER3_BASE, TIMER_TIMA_TIMEOUT);
+
+	ROM_IntMasterEnable();
+
+	leftSpeed = 40;
+	rightSpeed = 37;
+	ConfigurePWM();
+	ConfigureMotorGPIO();
+	setMotorSpeed(leftSpeed, rightSpeed);
+
+
+	ConfigureMotorSpeedSensorGPIO();
+
+	UARTprintf("\033[2J");
+	while(1){
+		UARTprintf("\033[;H");
+		UARTprintf("Testing motor speeds \n");
+
+		SysCtlDelay(g_ui32SysClock/3);
+		currentRightSpeed = returnRightSpeed();
+		SysCtlDelay(200);
+		currentLeftSpeed = returnLeftSpeed();
+
+		UARTprintf("Left Speed : ");
+		//move cursor
+		UARTprintf("\033[2;15H");
+		//delete and make room
+		UARTprintf("\033[K");
+
+		UARTprintf("%d \n", currentLeftSpeed);
+		UARTprintf("Right Speed: ");
+		//move cursor
+		UARTprintf("\033[3;15H");
+		//delete and make room
+		UARTprintf("\033[K");
+
+		UARTprintf("%d \n", currentRightSpeed);
+		//UARTprintf("\033[2J");
+		UARTprintf("Difference : ");
+
+		UARTprintf("\033[4;15]");
+
+		UARTprintf("\033[K");
+
+		UARTprintf("%d \n" , speedDifference(currentLeftSpeed, currentRightSpeed));
+
+
+	}
+
+
+
+
+	/**
+	 * Motor Control Code Section End
+	 */
+
 
 	//
 	// Create a mutex to guard the UART.
@@ -237,14 +352,14 @@ main(void)
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
 
 	// Initialize the Ultrasonic sensor task
-	if (SONAR_CONNECTED) {
-		if(SonarTaskInit() != 0)
-		{
-			while(1)
-			{
-			}
-		}
-	}
+//	if (SONAR_CONNECTED) { //recall to add this later on when sonars do get connected!!!!!!! - Brandon
+//		if(SonarTaskInit() != 0)
+//		{
+//			while(1)
+//			{
+//			}
+//		}
+//	}
 
 	//
 	// Start the scheduler.  This should not return.

@@ -23,6 +23,8 @@
 //*****************************************************************************
 
 #include <stdint.h>
+#include "inc/hw_nvic.h"
+#include "inc/hw_types.h"
 
 //*****************************************************************************
 //
@@ -41,6 +43,7 @@ static void IntDefaultHandler(void);
 //
 //*****************************************************************************
 extern void _c_int00(void);
+extern void Timer3IntHandler(void);
 
 //*****************************************************************************
 //
@@ -120,7 +123,7 @@ void (* const g_pfnVectors[])(void) =
 		IntDefaultHandler,// GPIO Port H
 		IntDefaultHandler,// UART2 Rx and Tx
 		IntDefaultHandler,// SSI1 Rx and Tx
-		IntDefaultHandler,// Timer 3 subtimer A
+		Timer3IntHandler,// Timer 3 subtimer A
 		IntDefaultHandler,// Timer 3 subtimer B
 		IntDefaultHandler,// I2C1 Master and Slave
 		IntDefaultHandler,// CAN0
