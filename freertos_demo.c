@@ -73,6 +73,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "BatterySensor.h"
 
 //*****************************************************************************
 //
@@ -116,7 +117,7 @@
 // Debugging Macros
 //
 //****************************************************************************
-#define SONAR_CONNECTED 0
+#define SONAR_CONNECTED 1
 
 //****************************************************************************
 //
@@ -245,19 +246,27 @@ main(void)
 			}
 		}
 	}
+		// Initialize the I2C transmitting task
+		if(TransmitTaskInit() != 0)
+		{
+			while(1)
+			{
+				UARTprintf("\nTransmit task failed to initialize\n");
+			}
+		}
+
 	// Initialize the I2C transmitting task
-	if(TransmitTaskInit() != 0)
+	if(BatteryTaskInit() != 0)
 	{
 		while(1)
 		{
-			UARTprintf("\nTransmit task failed to initialize\n");
+			UARTprintf("\nBattery task failed to initialize\n");
 		}
 	}
-
-    //
-    // Enable processor interrupts.
-    //
-    ROM_IntMasterEnable();
+	//
+	// Enable processor interrupts.
+	//
+	ROM_IntMasterEnable();
 
 	//
 	// Start the scheduler.  This should not return.

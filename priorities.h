@@ -34,6 +34,6 @@
 #define PRIORITY_SONAR_TASK       3
 #define PRIORITY_SWITCH_TASK      2
 #define PRIORITY_LED_TASK         1
-
+#define PRIORITY_BATTERY_TASK	  4
 
 #endif // __PRIORITIES_H__
