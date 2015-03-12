@@ -2,4 +2,8 @@
 /Release
 /.config
 /.launches
-.xdchelp
+.xdchelp/tm4c1294ncpdt_startup_ccs.c
+/pin_list.xlsx
+/.cproject
+/.settings
+/transmit_task.c
