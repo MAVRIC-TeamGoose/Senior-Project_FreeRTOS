@@ -9,7 +9,8 @@
  * Pi Code: Located in GitHub repository
  *
  * Todo
- * Send proximity data from transmit task
+ * Turn I2C while loops into interrupt that feeds semaphore
+ *
  * Send battery data from transmit task
  * Send smell data from transmit task
  * Send sound data from transmit tasks
@@ -19,7 +20,7 @@
  * Data Sent            |   Complete
  * ---------------------|-----------------
  * Temperature value    |       Y
- * Proximity values     |
+ * Proximity values     |       Y
  * Battery Level values |
  * Smell values         |
  * Sound values         |
@@ -130,7 +131,59 @@ uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value 
 // Proximity Values.
 //
 //*****************************************************************************
-//Todo
+extern int32_t ranges[8];
+
+extern xSemaphoreHandle g_pTemperatureSemaphore;
+
+extern xSemaphoreHandle g_pUARTSemaphore;
+
+extern xSemaphoreHandle g_pI2CSemaphore;
+
+extern xSemaphoreHandle g_pProximitySemaphore;
+
+//*****************************************************************************
+//
+// Global variable to hold the I2C data that has been received.
+//
+//*****************************************************************************
+//static uint32_t g_ui32DataRx;
+
+//*****************************************************************************
+//
+// This is a flag that gets set in the interrupt handler to indicate that an
+// interrupt occurred.
+//
+//*****************************************************************************
+//static bool g_bIntFlag = false;
+
+//*****************************************************************************
+//
+// The interrupt handler for the for I2C0 data slave interrupt.
+//
+//*****************************************************************************
+/*void
+I2C0SlaveIntHandler(void) //Currently never reaching this ISR
+{
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //
+    // Clear the I2C0 interrupt flag.
+    //
+    I2CSlaveIntClear(I2C0_BASE);
+
+    //
+    // Read the data from the slave.
+    //
+    //g_ui32DataRx = I2CSlaveDataGet(I2C0_BASE);
+
+    //
+    // Set a flag to indicate that the interrupt occurred.
+    //
+    //g_bIntFlag = true;
+    //
+    // Feed semaphore to wake task
+    //
+    xSemaphoreGiveFromISR(g_pI2CSemaphore, &xHigherPriorityTaskWoken);
+}*/
 
 //*****************************************************************************
 //
@@ -159,6 +212,20 @@ ConfigureI2C0(void)
 	//
 	MAP_GPIOPinTypeI2CSCL(GPIO_PORTB_BASE, GPIO_PIN_2);
 	MAP_GPIOPinTypeI2C(GPIO_PORTB_BASE, GPIO_PIN_3);
+
+    //
+    // Enable the I2C0 interrupt on the processor (NVIC).
+    //
+    //MAP_IntEnable(INT_I2C0);
+
+    //
+    // Configure and turn on the I2C0 slave interrupt.  The I2CSlaveIntEnableEx()
+    // gives you the ability to only enable specific interrupts.  For this case
+    // we are only interrupting when the slave device receives data.
+    //
+    //MAP_I2CSlaveIntEnableEx(I2C0_BASE, I2C_SLAVE_INT_DATA);
+    //MAP_I2CSlaveIntEnable(I2C0_BASE);
+
 	//
 	// Enable the I2C0 slave module.
 	//
@@ -167,6 +234,27 @@ ConfigureI2C0(void)
 	// Set the slave address to SLAVE_ADDRESS.
 	//
 	MAP_I2CSlaveInit(I2C0_BASE, SLAVE_ADDRESS);
+}
+
+void
+sendProx(uint8_t sensor)
+{
+	//Convert proximity into two byte array
+	uint8_t prox_i2c[2];    //Two byte array to hold prox value
+	//extern uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
+	//adc_i2c[0] = (*adc_value & 0xff00) >> 8;
+	//adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
+	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
+	prox_i2c[0] = (ranges[sensor - 2] & 0xff00) >> 8;
+	prox_i2c[1] = (ranges[sensor - 2] & 0x00ff); //Lowest 8 bits
+	xSemaphoreGive(g_pProximitySemaphore);
+    //
+    // Wait until slave data is requested
+    //
+    while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    MAP_I2CSlaveDataPut(I2C0_BASE, prox_i2c[0]); //Send back the proximity
+    while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    MAP_I2CSlaveDataPut(I2C0_BASE, prox_i2c[1]); //Send the lowest 8 bits
 }
 
 //*****************************************************************************
@@ -182,9 +270,22 @@ TransmitTask(void *pvParameters)
 {
 	//Type of data being requested.
 	uint8_t data_type = 0;
+	//uint32_t error = 0;
 
     while(1) //Loop for all eternity
     {
+
+        //
+        // Wait for interrupt to occur. (Turn into semaphore)
+        //
+        //while(!g_bIntFlag)
+        //{
+        //}
+        //xSemaphoreTake(g_pI2CSemaphore, portMAX_DELAY);
+       // xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+       // UARTprintf("Reached ISR");
+       // xSemaphoreGive(g_pUARTSemaphore);
+
     	//
     	// Wait until data type is received.
     	//
@@ -192,52 +293,77 @@ TransmitTask(void *pvParameters)
 
     	data_type = MAP_I2CSlaveDataGet(I2C0_BASE);
 
-    	switch(data_type) { //Switch statement for sending different data points
-    		case TEMPERATUREDATA :
+		// Disable context switching
+		//taskENTER_CRITICAL();
 
+    	switch(data_type) { //Switch statement for sending different data points
+        //switch(g_ui32DataRx) {
+    		case TEMPERATUREDATA :
+    			// Disable context switching
+    			//taskENTER_CRITICAL();
+    			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    			UARTprintf("\nTemp = %d", adc_value[0]);
+    			xSemaphoreGive(g_pUARTSemaphore);
+
+    			//Ensure Temperature is not being read during conversion
+    			xSemaphoreTake(g_pTemperatureSemaphore, portMAX_DELAY);
     	    	//Convert adc reading into two byte array
     	    	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
     	    	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
-
+    	    	xSemaphoreGive(g_pTemperatureSemaphore);
     	        //
     	        // Wait until slave data is requested
     	        //
     	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	    	//while(!(error))
+    	        //{
+    	        //	error = MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ;
+    	        //}
     	        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[0]); //Send back the temperature
     	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
     	        MAP_I2CSlaveDataPut(I2C0_BASE, adc_i2c[1]); //Send the lowest 8 bits
+    			// Re-enable context switching
+    			//taskEXIT_CRITICAL();
     			break;
 
     		case PROX1DATA :
-    			//Expressions
+    			//Call prox function
+    			sendProx(PROX1DATA);
     			break;
 
     		case PROX2DATA :
     			//Expressions
+    			sendProx(PROX2DATA);
     			break;
 
     		case PROX3DATA :
     			//Expressions
+    			sendProx(PROX3DATA);
     			break;
 
     		case PROX4DATA :
     			//Expressions
+    			sendProx(PROX4DATA);
     			break;
 
     		case PROX5DATA :
     			//Expressions
+    			sendProx(PROX5DATA);
     			break;
 
     		case PROX6DATA :
     			//Expressions
+    			sendProx(PROX6DATA);
     			break;
 
     		case PROX7DATA :
     			//Expressions
+    			sendProx(PROX7DATA);
     			break;
 
     		case PROX8DATA :
     			//Expressions
+    			sendProx(PROX8DATA);
     			break;
 
     		case BATTDATA :
@@ -264,7 +390,15 @@ TransmitTask(void *pvParameters)
     			//Motor data is about to be sent
     			//Change PWM outputs accordingly
     			break;
+    		default :
+    			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    			UARTprintf("\nYou have messed up");
+    			xSemaphoreGive(g_pUARTSemaphore);
     	}
+
+		// Re-enable context switching
+		//taskEXIT_CRITICAL();
+    	vTaskDelay(500);
     }
 }
 

@@ -61,16 +61,6 @@
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
-<<<<<<< HEAD
-=======
-#include "driverlib/interrupt.h"
-#include "inc/hw_ints.h"
-
-
-/*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
-
-/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
->>>>>>> refs/heads/master
 
 #include "utils/uartstdio.h"
 
@@ -137,7 +127,7 @@ int32_t rightSpeed;
 //
 //****************************************************************************
 <<<<<<< HEAD
-#define SONAR_CONNECTED 0
+#define SONAR_CONNECTED 1
 =======
 #define SONAR_CONNECTED 1
 #define TIMER_A                 0x000000ff  // Timer A
@@ -158,6 +148,12 @@ uint32_t currentLeftSpeed = 0;
 //
 //*****************************************************************************
 xSemaphoreHandle g_pUARTSemaphore;
+
+xSemaphoreHandle g_pTemperatureSemaphore;
+
+xSemaphoreHandle g_pI2CSemaphore;
+
+xSemaphoreHandle g_pProximitySemaphore;
 
 //*****************************************************************************
 //
@@ -354,6 +350,19 @@ main(void)
 	// Create a mutex to guard the UART.
 	//
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the ADC
+	//
+	g_pTemperatureSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the Proximity values
+	//
+	g_pProximitySemaphore = xSemaphoreCreateMutex();
+	//
+	// Create semaphore to wake transmit task
+	//
+	g_pI2CSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreTake(g_pI2CSemaphore, 0); //Take semaphore for safety
 
 	//Initialize the ADC functionality
 	if (ADCInit() != 0)
