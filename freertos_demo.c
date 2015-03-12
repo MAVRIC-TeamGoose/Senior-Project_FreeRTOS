@@ -61,6 +61,7 @@
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
+<<<<<<< HEAD
 #include "driverlib/interrupt.h"
 #include "inc/hw_ints.h"
 
@@ -68,6 +69,15 @@
 /*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
 
 /*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
+
+#include "driverlib/interrupt.h"
+#include "inc/hw_ints.h"
+
+
+/*#include "driverlib/i2c.h"*/ //Added by Drew!!!!!!!
+
+/*#include "drivers/pinout.h"*/ //Added by Drew!!!!!!
+//github.com/MAVRIC-TeamGoose/Senior-Project_FreeRTOS.git
 
 #include "utils/uartstdio.h"
 
@@ -133,10 +143,19 @@ int32_t rightSpeed;
 // Debugging Macros
 //
 //****************************************************************************
+<<<<<<< HEAD
 #define SONAR_CONNECTED 0
+<<<<<<< HEAD
 #define SONAR_CONNECTED 1
 #define TIMER_A                 0x000000ff  // Timer A
 #define TIMER_TIMA_TIMEOUT      0x00000001  // TimerA time out interrupt
+=======
+=======
+#define SONAR_CONNECTED 1
+#define TIMER_A                 0x000000ff  // Timer A
+#define TIMER_TIMA_TIMEOUT      0x00000001  // TimerA time out interrupt
+>>>>>>> refs/heads/master
+>>>>>>> branch 'master' of https://github.com/MAVRIC-TeamGoose/Senior-Project_FreeRTOS.git
 
 //****************************************************************************
 //
@@ -377,6 +396,14 @@ main(void)
     // Enable processor interrupts.
     //
     ROM_IntMasterEnable();
+//	if (SONAR_CONNECTED) { //recall to add this later on when sonars do get connected!!!!!!! - Brandon
+//		if(SonarTaskInit() != 0)
+//		{
+//			while(1)
+//			{
+//			}
+//		}
+//	}
 
 	//
 	// Start the scheduler.  This should not return.
