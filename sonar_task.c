@@ -94,7 +94,7 @@
 // Default test message delay value (in ms). Message will print once per interval
 //
 //*****************************************************************************
-#define TEST_DELAY        1000
+//#define TEST_DELAY        1000
 
 //*****************************************************************************
 //
@@ -106,6 +106,8 @@
 volatile uint32_t g_ui32PulseLengthTicks; // Length of ultrasonic echo pulse in system clock ticks
 
 extern xSemaphoreHandle g_pUARTSemaphore;
+
+extern xSemaphoreHandle g_pProximitySemaphore;
 
 extern uint32_t g_ui32SysClock;
 
@@ -168,19 +170,19 @@ void selectSonar(uint8_t select)
 static void
 SonarTask(void *pvParameters)
 {
-	portTickType ui32WakeTime;
-	uint32_t ui32TestDelay;
+	//portTickType ui32WakeTime;
+	//uint32_t ui32TestDelay;
 	// uint8_t i8Message;
 
 	//
 	// Initialize the Test Delay to default value.
 	//
-	ui32TestDelay = TEST_DELAY;
+	//ui32TestDelay = TEST_DELAY;
 
 	//
 	// Get the current tick count.
 	//
-	ui32WakeTime = xTaskGetTickCount();
+	//ui32WakeTime = xTaskGetTickCount();
 
 	//
 	// Counts number of tests for each setup
@@ -195,7 +197,7 @@ SonarTask(void *pvParameters)
 		//
 		// Wait for the required amount of time.
 		//
-		vTaskDelayUntil(&ui32WakeTime, ui32TestDelay / portTICK_RATE_MS);
+		//vTaskDelayUntil(&ui32WakeTime, ui32TestDelay / portTICK_RATE_MS);
 /*
 
 		if (testCount > TESTS_PER_SCENARIO) {
@@ -235,6 +237,8 @@ SonarTask(void *pvParameters)
 			MAP_SysCtlDelay(g_ui32SysClock / 3 / 50);
 
 			// // // Send a trigger pulse \\ \\ \\
+
+			xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 
 			// Disable context switching
 			taskENTER_CRITICAL();
@@ -333,6 +337,8 @@ SonarTask(void *pvParameters)
 			// Re-enable context switching
 			taskEXIT_CRITICAL();
 
+			xSemaphoreGive(g_pProximitySemaphore);
+
 			//
 			// Print the start time, stop time, and pulse length
 			//
@@ -380,6 +386,7 @@ SonarTask(void *pvParameters)
 			// Wait between sonars
 			//MAP_SysCtlDelay(g_ui32SysClock / 3 );
 		} //end for
+		//taskENTER_CRITICAL();
 		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("\nProx=", ranges[0], ranges[1], ranges[2]);
 		int j;
@@ -389,9 +396,11 @@ SonarTask(void *pvParameters)
 		}
 		UARTprintf(" cm\n");
 		xSemaphoreGive(g_pUARTSemaphore);
+		//taskEXIT_CRITICAL();
 
 		// Wait .25 seconds before firing array again
-		MAP_SysCtlDelay(g_ui32SysClock / 3 / 4 );
+		//MAP_SysCtlDelay(g_ui32SysClock / 3 / 4 );
+		vTaskDelay(250);
 
 
 	}

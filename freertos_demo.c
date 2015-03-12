@@ -132,6 +132,12 @@ uint32_t g_ui32SysClock;
 //*****************************************************************************
 xSemaphoreHandle g_pUARTSemaphore;
 
+xSemaphoreHandle g_pTemperatureSemaphore;
+
+xSemaphoreHandle g_pI2CSemaphore;
+
+xSemaphoreHandle g_pProximitySemaphore;
+
 //*****************************************************************************
 //
 // The error routine that is called if the driver library encounters an error.
@@ -229,6 +235,19 @@ main(void)
 	// Create a mutex to guard the UART.
 	//
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the ADC
+	//
+	g_pTemperatureSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the Proximity values
+	//
+	g_pProximitySemaphore = xSemaphoreCreateMutex();
+	//
+	// Create semaphore to wake transmit task
+	//
+	g_pI2CSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreTake(g_pI2CSemaphore, 0); //Take semaphore for safety
 
 	//Initialize the ADC functionality
 	if (ADCInit() != 0)
