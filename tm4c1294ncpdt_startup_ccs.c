@@ -58,6 +58,7 @@ extern void xPortPendSVHandler(void);
 extern void vPortSVCHandler(void);
 extern void xPortSysTickHandler(void);
 extern void Timer1IntHandler(void);
+//extern void I2C0SlaveIntHandler(void);
 
 //*****************************************************************************
 //
