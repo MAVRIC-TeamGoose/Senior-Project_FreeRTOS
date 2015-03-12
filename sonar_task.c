@@ -404,7 +404,7 @@ SonarTask(void *pvParameters)
 		int j;
 		for (j = 0; j < NUM_SONAR; j++)
 		{
-			if (ranges[j] <= 25)
+			if (ranges[j] <= 50)
 			{
 				setMotorSpeed(0, 0);
 			}
