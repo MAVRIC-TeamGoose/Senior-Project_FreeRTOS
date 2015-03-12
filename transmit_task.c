@@ -69,6 +69,7 @@
 //*****************************************************************************
 #define TEMPERATUREDATA             0x1
 
+<<<<<<< HEAD
 #define PROX1DATA                   0x2
 #define PROX2DATA                   0x3
 #define PROX3DATA                   0x4
@@ -77,6 +78,12 @@
 #define PROX6DATA                   0x7
 #define PROX7DATA                   0x8
 #define PROX8DATA                   0x9
+=======
+	//
+	// Initialize the Test Delay to default value.
+	//
+	//ui32TestDelay = TEST_DELAY;
+>>>>>>> refs/heads/master
 
 #define BATTDATA                    0xA
 
