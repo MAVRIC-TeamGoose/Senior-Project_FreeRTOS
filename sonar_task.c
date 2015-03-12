@@ -53,6 +53,8 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "motors.h"
+
 //*****************************************************************************
 //
 // The stack size for the test task.
@@ -387,14 +389,26 @@ SonarTask(void *pvParameters)
 			//MAP_SysCtlDelay(g_ui32SysClock / 3 );
 		} //end for
 		//taskENTER_CRITICAL();
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+		/*xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("\nProx=", ranges[0], ranges[1], ranges[2]);
 		int j;
 		for (j = 0; j < NUM_SONAR; j++)
 		{
+			if (ranges[j] <= 25)
+			{
+				setMotorSpeed(0, 0);
+			}
 			UARTprintf(" %d", ranges[j]);
 		}
-		UARTprintf(" cm\n");
+		UARTprintf(" cm\n");*/
+		int j;
+		for (j = 0; j < NUM_SONAR; j++)
+		{
+			if (ranges[j] <= 25)
+			{
+				setMotorSpeed(0, 0);
+			}
+		}
 		xSemaphoreGive(g_pUARTSemaphore);
 		//taskEXIT_CRITICAL();
 

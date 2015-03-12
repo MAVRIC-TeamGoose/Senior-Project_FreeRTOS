@@ -126,6 +126,10 @@ uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value 
 //*****************************************************************************
 extern int32_t ranges[8];
 
+extern uint32_t i32VoltageValue; //Battery voltage
+
+uint8_t batt_i2c[2];
+
 extern xSemaphoreHandle g_pTemperatureSemaphore;
 
 extern xSemaphoreHandle g_pUARTSemaphore;
@@ -133,6 +137,8 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 extern xSemaphoreHandle g_pI2CSemaphore;
 
 extern xSemaphoreHandle g_pProximitySemaphore;
+
+extern xSemaphoreHandle g_pBatterySemaphore;
 
 //*****************************************************************************
 //
@@ -294,9 +300,9 @@ TransmitTask(void *pvParameters)
     		case TEMPERATUREDATA :
     			// Disable context switching
     			//taskENTER_CRITICAL();
-    			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-    			UARTprintf("\nTemp = %d", adc_value[0]);
-    			xSemaphoreGive(g_pUARTSemaphore);
+    			//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    			//UARTprintf("\nTemp = %d", adc_value[0]);
+    			//xSemaphoreGive(g_pUARTSemaphore);
 
     			//Ensure Temperature is not being read during conversion
     			xSemaphoreTake(g_pTemperatureSemaphore, portMAX_DELAY);
@@ -361,6 +367,26 @@ TransmitTask(void *pvParameters)
 
     		case BATTDATA :
     			//Expressions
+    			//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+    			//UARTprintf("\nBatt = %d", i32VoltageValue);
+    			//xSemaphoreGive(g_pUARTSemaphore);
+    			xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
+    			//Convert adc reading into two byte array
+    	    	batt_i2c[0] = (i32VoltageValue & 0xff00) >> 8;
+    	    	batt_i2c[1] = (i32VoltageValue & 0x00ff);      //Lowest 8 bits
+    	    	xSemaphoreGive(g_pBatterySemaphore);
+
+    	        //
+    	        // Wait until slave data is requested
+    	        //
+    	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	    	//while(!(error))
+    	        //{
+    	        //	error = MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ;
+    	        //}
+    	        MAP_I2CSlaveDataPut(I2C0_BASE, batt_i2c[0]); //Send back the temperature
+    	        while(!(MAP_I2CSlaveStatus(I2C0_BASE) & I2C_SLAVE_ACT_TREQ));
+    	        MAP_I2CSlaveDataPut(I2C0_BASE, batt_i2c[1]); //Send the lowest 8 bits
     			break;
 
     		case LEFTSMELLDATA :
