@@ -35,6 +35,7 @@
 #define PRIORITY_SWITCH_TASK      2
 #define PRIORITY_LED_TASK         1
 #define PRIORITY_BATTERY_TASK	  5
+#define PRIORITY_AUDIO_TASK       5
 
 
 #endif // __PRIORITIES_H__
