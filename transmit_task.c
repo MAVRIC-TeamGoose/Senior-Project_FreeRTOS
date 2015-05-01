@@ -2,8 +2,7 @@
  * Author : Drew May
  * Date   : April 30th 2015
  * Version: 0.7
- * Summary: Tiva TM4C receives raw temperature from internal temperature module
- * 			and transmits two bytes worth of information through I2C.
+ * Summary: Tiva TM4C receives sensor data and transmits it through I2C.
  * 			In this example the master is a Raspberry Pi.
  *
  * Pi Code: Located in GitHub repository
