@@ -113,7 +113,7 @@ extern xSemaphoreHandle g_pProximitySemaphore;
 
 extern uint32_t g_ui32SysClock;
 
-int32_t ranges[NUM_SONAR];
+volatile int32_t ranges[NUM_SONAR];
 
 //*****************************************************************************
 //
@@ -248,7 +248,7 @@ SonarTask(void *pvParameters)
 			//
 			// Turn on pulse.
 			//
-			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, GPIO_PIN_7);
+			MAP_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
 
 			//
 			// Delay for 5 us.
@@ -258,7 +258,7 @@ SonarTask(void *pvParameters)
 			//
 			// Turn off pulse.
 			//
-			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, 0);
+			MAP_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
 
 
 			// // // Measure pulse length \\ \\ \\
@@ -434,6 +434,7 @@ SonarTaskInit(void)
 	// Enable GPIO M and B
 	//
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
 
@@ -448,7 +449,7 @@ SonarTaskInit(void)
 	//
 	// Enable the GPIO pin for the trigger pulse (M7).
 	//
-	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_7);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_5);
 
 	//
 	// Enable GPIO pin for timer event capture (M4).
