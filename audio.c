@@ -116,20 +116,23 @@ uint32_t doBitReverse = 1;
 // Audio Task
 static void AudioTask(void *pvParameters)
 {
-	vTaskDelay(10000);
-	// Start HW timer for sampling (ADC interrupt will
-	// trigger FFT when buffer full)
-
-    // Enable interrupts for sample conversion complete
-	MAP_ADCIntEnable(ADC0_BASE, 2);
-
-	// Enable NVIC interrupt for ADC0 SS3
-	MAP_IntEnable(INT_ADC0SS2);
-
-	// Start timer
-	MAP_TimerEnable(TIMER2_BASE, TIMER_A);
+	while(1) {
 
 
+		vTaskDelay(10000);
+		// Start HW timer for sampling (ADC interrupt will
+		// trigger FFT when buffer full)
+
+		// Enable interrupts for sample conversion complete
+		MAP_ADCIntEnable(ADC0_BASE, 2);
+
+		// Enable NVIC interrupt for ADC0 SS3
+		MAP_IntEnable(INT_ADC0SS2);
+
+		// Start timer
+		MAP_TimerEnable(TIMER2_BASE, TIMER_A);
+
+	}
 
 }
 
