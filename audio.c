@@ -232,6 +232,9 @@ uint32_t AudioTaskInit(void)
 
 	UARTprintf("\033[2JFFT Test\n");
 
+	// Enable FPU
+	ROM_FPUEnable();
+
 	// Initialize input buffer index for FFT data
 	inputIndex = 0;
 

@@ -68,6 +68,7 @@
 #include "sonar_task.h"
 #include "transmit_task.h"
 #include "adc_setup.h"
+#include "audio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -325,6 +326,14 @@ main(void)
 		while(1)
 		{
 			UARTprintf("\nBattery task failed to initialize\n");
+		}
+	}
+
+	if(AudioTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nAudio task failed to initialize\n");
 		}
 	}
 
