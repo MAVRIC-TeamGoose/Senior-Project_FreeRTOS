@@ -2,7 +2,11 @@
  * audio.c
  *
  *  Created on: Apr 28, 2015
- *      Author: root
+ *      Authors: MAVRIC Team B
+ *               Thinh Le
+ *               Keith Lueneburg
+ *               Drew May
+ *               Brandon Thomas
  */
 
 #include <stdbool.h>
@@ -119,7 +123,7 @@ static void AudioTask(void *pvParameters)
 	while(1) {
 
 
-		vTaskDelay(10000);
+		vTaskDelay(1000);
 		// Start HW timer for sampling (ADC interrupt will
 		// trigger FFT when buffer full)
 

@@ -118,7 +118,7 @@ int Battery_Level_Conversion(){
 	V_actual =  adc_battery_array[0]*2.52046;
 
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	UARTprintf("ADC Value = %d\n", adc_battery_array[0]); // ADC raw value
+	UARTprintf("Battery ADC = %d\n", adc_battery_array[0]); // ADC raw value
 	UARTprintf("Battery Voltage = %d mV\n", V_actual); //Print out the first (and only) value
 	xSemaphoreGive(g_pUARTSemaphore);
 

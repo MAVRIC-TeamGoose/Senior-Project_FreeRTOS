@@ -47,6 +47,9 @@ uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value 
 
 extern xSemaphoreHandle g_pTemperatureSemaphore;
 
+// Used to guard UART
+extern xSemaphoreHandle g_pUARTSemaphore;
+
 extern uint32_t g_ui32SysClock;
 
 void
@@ -129,6 +132,9 @@ Timer1IntHandler(void)
 
 	ROM_ADCSequenceDataGet(ADC0_BASE, 3, adc_value); //Get data from Sequencer 3
 
+	xSemaphoreTakeFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
+	UARTprintf("Temp:%d\n", adc_value[0]);
+	xSemaphoreGiveFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
 
 	xSemaphoreGiveFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
 	// Enable context switching
