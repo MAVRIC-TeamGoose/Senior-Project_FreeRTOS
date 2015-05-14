@@ -14,15 +14,6 @@ void ConfigurePWM();
 // Setup additional GPIO pins for motors
 void ConfigureMotorGPIO();
 
-// Setup grabber arm GPIO
-void ConfigureGrabberArmGPIO();
-
-//Open grabber arm
-void OpenGrabberArm();
-
-//Close grabber arm
-void CloseGrabberArm();
-
 // Setupt GPIO pins for monitoring motor speed
 void ConfigureMotorSpeedSensorGPIO();
 
@@ -39,5 +30,14 @@ uint32_t returnRightSpeed();
 
 // Set motor speeds
 void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed);
+
+// Setup grabber arm GPIO
+/*void ConfigureGrabberArmGPIO();
+
+//Open grabber arm
+void OpenGrabberArm();
+
+//Close grabber arm
+void CloseGrabberArm();*/
 
 #endif /* MOTORS_H_ */

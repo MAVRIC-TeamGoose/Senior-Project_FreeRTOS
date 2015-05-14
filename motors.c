@@ -242,20 +242,20 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 	}
 
 }
-
+/*
 void ConfigureGrabberArmGPIO()
 {
-	//Enable Pins X and Y
+	//Enable Pins PK0 and PK1
 }
 
 void OpenGrabberArm()
 {
-	//Set Y to 0 and X to 1
+	//Set PK1 to 0 and PK0 to 1
 }
 
 void CloseGrabberArm()
 {
-	//Set X to 0 and Y to 1
+	//Set PK0 to 0 and PK1 to 1
 }
-
+*/
 
