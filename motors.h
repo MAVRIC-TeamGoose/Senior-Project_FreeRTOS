@@ -31,4 +31,13 @@ uint32_t returnRightSpeed();
 // Set motor speeds
 void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed);
 
+// Setup grabber arm GPIO
+/*void ConfigureGrabberArmGPIO();
+
+//Open grabber arm
+void OpenGrabberArm();
+
+//Close grabber arm
+void CloseGrabberArm();*/
+
 #endif /* MOTORS_H_ */

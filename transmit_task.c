@@ -2,8 +2,7 @@
  * Author : Drew May
  * Date   : April 30th 2015
  * Version: 0.7
- * Summary: Tiva TM4C receives raw temperature from internal temperature module
- * 			and transmits two bytes worth of information through I2C.
+ * Summary: Tiva TM4C receives sensor data and transmits it through I2C.
  * 			In this example the master is a Raspberry Pi.
  *
  * Pi Code: Located in GitHub repository
@@ -116,6 +115,16 @@ uint8_t g_prox_flag;
 
 uint8_t g_batt_flag;
 
+uint8_t g_motor_flag;
+
+//*****************************************************************************
+//
+// Motor Values. (PROB MOVE TO MOTOR TASK AND DECLARE EXTERN HERE)
+//
+//*****************************************************************************
+uint32_t motor_speed;
+
+uint32_t motor_skew;
 
 //*****************************************************************************
 //
@@ -179,6 +188,7 @@ I2C0SlaveIntHandler(void)
     	    	g_temp_flag = 1; //Set flag for temperature
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 0;
+    	    	g_motor_flag = 0;
     			break;
     		case PROX1DATA :
     			//Call prox function
@@ -229,6 +239,7 @@ I2C0SlaveIntHandler(void)
     	    	g_temp_flag = 0;
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 1;
+    	    	g_motor_flag = 0;
     			break;
 
     		case LEFTSMELLDATA :
@@ -249,12 +260,19 @@ I2C0SlaveIntHandler(void)
 
     		case MOTORDATA :
     			//Motor data is about to be sent
-    			//Change PWM outputs accordingly
+    			//Data sent will be speed and direction skew in that order
+    			g_motor_flag = 1;
     			break;
-    		default :
-    			xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-    			UARTprintf("\nYou have messed up");
-    			xSemaphoreGive(g_pUARTSemaphore);
+    		default : //If not one of the constants it is motor data
+    			if (g_motor_flag == 2) {
+    				//Direction/Skew is available
+    				motor_skew = g_data_type;
+    				g_motor_flag = 0;
+    			} else if (g_motor_flag == 1) {
+    				//Speed is available
+    				motor_speed = g_data_type;
+    				g_motor_flag = 2;
+    			}
     	}
     } else if (I2CSlaveStatus(I2C0_BASE) == I2C_SLAVE_ACT_TREQ) {
 
@@ -318,10 +336,6 @@ I2C0SlaveIntHandler(void)
     				g_batt_flag = 0;
     			}
     			break;
-    		default :
-    	    	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-    	    	UARTprintf("\nYou have messed up");
-    	    	xSemaphoreGive(g_pUARTSemaphore);
     	}
     }
 }
@@ -399,6 +413,7 @@ formatProx(uint8_t sensor)
 	g_prox_flag = 1; //Set proximity flag
 	g_batt_flag = 0;
 	g_temp_flag = 0;
+	g_motor_flag = 0;
 }
 
 //*****************************************************************************
