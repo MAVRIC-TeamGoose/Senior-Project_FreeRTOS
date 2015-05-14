@@ -66,7 +66,7 @@ ConfigureADC()
 	ROM_GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3); //Enable ADC on PE3
 	ROM_ADCSequenceDisable(ADC0_BASE, 3); //Disable sequence before configuring it
 	ROM_ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0); //Use sequencer 3 to trigger at all times with a priority of 0 (highest)
-	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_TS | ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
+	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
 
 	ROM_ADCSequenceEnable(ADC0_BASE, 3); //Enable the sequencer
 

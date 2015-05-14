@@ -231,11 +231,11 @@ I2C0SlaveIntHandler(void)
     			break;
 
     		case BATTDATA :
-    			xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
+    			//xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
     			//Convert adc reading into two byte array
     	    	batt_i2c[0] = (i32VoltageValue & 0xff00) >> 8;
     	    	batt_i2c[1] = (i32VoltageValue & 0x00ff);      //Lowest 8 bits
-    	    	xSemaphoreGive(g_pBatterySemaphore);
+    	    	//xSemaphoreGive(g_pBatterySemaphore);
     	    	g_temp_flag = 0;
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 1;
