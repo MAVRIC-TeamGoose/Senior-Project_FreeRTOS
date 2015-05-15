@@ -89,7 +89,7 @@
 #define TESTS_PER_SCENARIO 10
 
 // Number of sonar sensors connected
-#define NUM_SONAR 8
+#define NUM_SONAR 7
 
 //*****************************************************************************
 //

@@ -37,5 +37,9 @@
 #define PRIORITY_BATTERY_TASK	  5
 #define PRIORITY_AUDIO_TASK       5
 
+#define PRIORITY_ADC0_SS2_INT	  6
+#define PRIORITY_TIMER1_INT       6
+#define PRIORITY_I2C0_INT         6
+
 
 #endif // __PRIORITIES_H__

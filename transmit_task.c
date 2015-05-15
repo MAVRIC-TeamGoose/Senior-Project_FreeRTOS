@@ -380,6 +380,9 @@ ConfigureI2C0(void)
 	//
 	MAP_IntMasterEnable();
 
+	// Set priority for ADC0 SS2 interrupt
+    //MAP_IntPrioritySet(PRIORITY_ADC0_SS2_INT);
+
 	//
 	// Enable the I2C0 interrupt on the processor (NVIC).
 	//

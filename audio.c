@@ -130,6 +130,9 @@ static void AudioTask(void *pvParameters)
 		// Enable interrupts for sample conversion complete
 		MAP_ADCIntEnable(ADC0_BASE, 2);
 
+		// Set priority for ADC0 SS2 interrupt
+		//MAP_IntPrioritySet(PRIORITY_ADC0_SS2_INT);
+
 		// Enable NVIC interrupt for ADC0 SS3
 		MAP_IntEnable(INT_ADC0SS2);
 
@@ -190,10 +193,10 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 	{
 		// Print each frequency (closest bucket) and its magnitude
 		// Note: Print output is cast to integer due to restrictions in UARTprintf function
-		UARTprintf("%d Hz: %d\n", freqs[i], (int) magOutput[freqIndex(freqs[i])]);
+		//UARTprintf("%d Hz: %d\n", freqs[i], (int) magOutput[freqIndex(freqs[i])]);
 
 	}
-	UARTprintf("\n\n");
+	//UARTprintf("\n\n");
 	xSemaphoreGive(g_pUARTSemaphore);
 
 }
@@ -237,7 +240,7 @@ void ADC0_SampleHandler()
 uint32_t AudioTaskInit(void)
 {
 
-	UARTprintf("\033[2JFFT Test\n");
+	//UARTprintf("\033[2JFFT Test\n");
 
 	// Enable FPU
 	ROM_FPUEnable();
