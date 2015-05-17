@@ -4,6 +4,7 @@
  * Thinh
  */
 
+#include <BatterySensor_task.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
@@ -32,7 +33,6 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "BatterySensor.h"
 
 /*
  * A global value to be called in your transmit

@@ -47,6 +47,10 @@
 //
 //*****************************************************************************
 
+#include <adc_setup_task.h>
+#include <audio_task.h>
+#include <BatterySensor_task.h>
+#include <motors_task.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -64,18 +68,13 @@
 
 #include "utils/uartstdio.h"
 
-#include "motors.h"
 #include "sonar_task.h"
 #include "transmit_task.h"
-#include "adc_setup.h"
-#include "audio.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
-#include "BatterySensor.h"
 
 //*****************************************************************************
 //

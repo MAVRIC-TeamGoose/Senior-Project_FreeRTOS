@@ -10,6 +10,7 @@
  * N/A Currently
  */
 
+#include <adc_setup_task.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -30,7 +31,6 @@
 
 #include "utils/uartstdio.h"
 
-#include "adc_setup.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"

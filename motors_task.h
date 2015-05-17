@@ -5,8 +5,8 @@
  *      Author: Team Goose
  */
 
-#ifndef MOTORS_H_
-#define MOTORS_H_
+#ifndef MOTORS_TASK_H_
+#define MOTORS_TASK_H_
 
 // Setup PWM
 void ConfigurePWM();
@@ -40,4 +40,4 @@ void OpenGrabberArm();
 //Close grabber arm
 void CloseGrabberArm();*/
 
-#endif /* MOTORS_H_ */
+#endif /* MOTORS_TASK_H_ */
