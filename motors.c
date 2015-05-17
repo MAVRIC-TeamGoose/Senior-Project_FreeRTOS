@@ -127,9 +127,11 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_1, 0);
 	}
 
-	// Speed is from 0-100, so we multiply by 15 / 2 to map to 0-750,
+	// Speed is from 0-100, so we multiply by 15 / 2 to map to 0-750,.---> 100*7.5
 	// which is the range for 0-100% duty cycle PWM.
 	MAP_PWMPulseWidthSet(PWM0_BASE, PWM_GEN_1, (leftSpeed * 15) / 2);
+
+
 
 	if (rightSpeed < 0)
 	{
