@@ -10,7 +10,7 @@
  * N/A Currently
  */
 
-#include <adc_setup_task.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -30,11 +30,11 @@
 #include "driverlib/timer.h"
 
 #include "utils/uartstdio.h"
-
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "adc_setup_task.h"
 
 //*****************************************************************************
 //

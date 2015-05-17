@@ -4,7 +4,7 @@
  * Thinh
  */
 
-#include <BatterySensor_task.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
@@ -25,15 +25,13 @@
 #include "driverlib/uart.h"
 #include "utils/uartstdio.h"
 #include "driverlib/fpu.h"
-
-
 #include "priorities.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
+#include "batterySensor_task.h"
 /*
  * A global value to be called in your transmit
  */

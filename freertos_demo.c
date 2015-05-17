@@ -47,10 +47,8 @@
 //
 //*****************************************************************************
 
-#include <adc_setup_task.h>
-#include <audio_task.h>
-#include <BatterySensor_task.h>
-#include <motors_task.h>
+
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -70,6 +68,11 @@
 
 #include "sonar_task.h"
 #include "transmit_task.h"
+#include "adc_setup_task.h"
+#include "audio_task.h"
+#include "motors_task.h"
+#include "batterySensor_task.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
