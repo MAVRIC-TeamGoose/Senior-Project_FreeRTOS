@@ -45,6 +45,11 @@ uint32_t adc_value[1]; //Sequencer 3 has a FIFO of size 1
 
 uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value and add mutex to it)
 
+extern xSemaphoreHandle g_pTemperatureSemaphore;
+
+// Used to guard UART
+extern xSemaphoreHandle g_pUARTSemaphore;
+
 extern uint32_t g_ui32SysClock;
 
 void
@@ -61,7 +66,7 @@ ConfigureADC()
 	ROM_GPIOPinTypeADC(GPIO_PORTE_BASE, GPIO_PIN_3); //Enable ADC on PE3
 	ROM_ADCSequenceDisable(ADC0_BASE, 3); //Disable sequence before configuring it
 	ROM_ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0); //Use sequencer 3 to trigger at all times with a priority of 0 (highest)
-	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_TS | ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
+	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
 
 	ROM_ADCSequenceEnable(ADC0_BASE, 3); //Enable the sequencer
 
@@ -99,6 +104,9 @@ ConfigureTempTimer()
 void
 Timer1IntHandler(void)
 {
+	// Disable context switching
+	taskENTER_CRITICAL();
+	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     //
     // Clear the timer interrupt.
     //
@@ -115,9 +123,8 @@ Timer1IntHandler(void)
     while(!ROM_ADCIntStatus(ADC0_BASE, 3, false))
     { //Wait for ADC to finish sampling
     }
+    xSemaphoreTakeFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
 
-	// Disable context switching
-	taskENTER_CRITICAL();
     //
     // Clear ADC interrupt
     //
@@ -125,6 +132,11 @@ Timer1IntHandler(void)
 
 	ROM_ADCSequenceDataGet(ADC0_BASE, 3, adc_value); //Get data from Sequencer 3
 
+	xSemaphoreTakeFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
+	UARTprintf("Temp:%d\n", adc_value[0]);
+	xSemaphoreGiveFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
+
+	xSemaphoreGiveFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
 	// Enable context switching
 	taskEXIT_CRITICAL();
 }

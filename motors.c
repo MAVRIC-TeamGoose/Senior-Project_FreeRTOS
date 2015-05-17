@@ -22,6 +22,16 @@
 // Configure PWM functions
 //
 //*****************************************************************************
+
+//*****************************************************************************
+//
+// Defines
+//
+//*****************************************************************************
+uint32_t rightSpeedArray[10];
+uint32_t leftSpeedArray[10];
+
+
 void ConfigurePWM()
 {
 	// Enable peripherals
@@ -79,6 +89,9 @@ void ConfigurePWM()
 
 	// Enable PWM
 	PWM0_ENABLE_R = 0x0000003C;
+	//Because these methods are called as a sequence with other methods to initialize tools, delays are added
+	//to give time for other initialization methods to begin.
+	MAP_SysCtlDelay(2);
 }
 
 void ConfigureMotorGPIO()
@@ -103,12 +116,80 @@ void ConfigureMotorGPIO()
 
 	// Turn all pins off
 	MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_5, 0);
+	//Because these methods are called as a sequence with other methods to initialize tools, delays are added
+	//to give time for other initialization methods to begin.
+	MAP_SysCtlDelay(2);
+}
+
+void ConfigureMotorSpeedSensorGPIO()
+{
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+
+	SysCtlDelay(2);
+	//set Pin E0 as input
+	GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_0);
+	//set Pin E1 as input
+	GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_1);
+}
+
+uint32_t CalculateLeftSpeed()
+{
+	uint32_t currentLeftSpeed = 0;
+	while(1) {
+		if(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_0)){
+			while(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_0)) {
+				currentLeftSpeed++;
+			}
+			return currentLeftSpeed;
+		}
+	}
+}
+uint32_t CalculateRightSpeed()
+{
+	uint32_t currentRightSpeed = 0;
+		while(1) {
+			if(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_1)){
+				while(GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_1)) {
+					SysCtlDelay(2);
+					currentRightSpeed++;
+				}
+				return currentRightSpeed;
+			}
+		}
+}
+
+uint32_t returnRightSpeed()
+{
+	uint32_t i = 0;
+	uint32_t returnSpeed = 0;
+	while(i < 10){
+		rightSpeedArray[i] = CalculateRightSpeed();
+		i++;
+		returnSpeed += rightSpeedArray[i];
+	}
+	return returnSpeed / 10;
+
+}
+
+uint32_t returnLeftSpeed()
+{
+	uint32_t i = 0;
+	uint32_t returnSpeed = 0;
+	while(i < 10){
+		leftSpeedArray[i] = CalculateLeftSpeed();
+		i++;
+		returnSpeed += rightSpeedArray[i];
+	}
+	return returnSpeed / 10;
 }
 
 // Set the left and right motor speeds
 // Valid inputs are from -100 to 100 for each motor
 void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 {
+
+
+
 	if (leftSpeed < 0)
 	{
 		// left IN_A = 0
@@ -127,6 +208,9 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_1, 0);
 	}
 
+
+
+
 	// Speed is from 0-100, so we multiply by 15 / 2 to map to 0-750,
 	// which is the range for 0-100% duty cycle PWM.
 	MAP_PWMPulseWidthSet(PWM0_BASE, PWM_GEN_1, (leftSpeed * 15) / 2);
@@ -134,7 +218,7 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 	if (rightSpeed < 0)
 	{
 		// right IN_A = 1
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, GPIO_PIN_2);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, 1);
 		// right IN_B = 0
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, 0);
 
@@ -150,4 +234,28 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 
 	MAP_PWMPulseWidthSet(PWM0_BASE, PWM_GEN_2, (rightSpeed * 15) / 2);
 
+	if((leftSpeed == 0) && (rightSpeed == 0)){
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_0, 0);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_1, 0);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, 0);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, 0);
+	}
+
 }
+/*
+void ConfigureGrabberArmGPIO()
+{
+	//Enable Pins PK0 and PK1
+}
+
+void OpenGrabberArm()
+{
+	//Set PK1 to 0 and PK0 to 1
+}
+
+void CloseGrabberArm()
+{
+	//Set PK0 to 0 and PK1 to 1
+}
+*/
+

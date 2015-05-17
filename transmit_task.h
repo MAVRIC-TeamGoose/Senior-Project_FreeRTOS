@@ -15,4 +15,6 @@
 //*****************************************************************************
 extern uint32_t TransmitTaskInit(void);
 void ConfigureI2C0(void);
+void sendProx(uint8_t sensor);
+void formatProx(uint8_t sensor);
 #endif /* TRANSMIT_TASK_H_ */

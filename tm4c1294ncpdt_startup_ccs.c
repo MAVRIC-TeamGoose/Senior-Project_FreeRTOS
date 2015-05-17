@@ -58,6 +58,8 @@ extern void xPortPendSVHandler(void);
 extern void vPortSVCHandler(void);
 extern void xPortSysTickHandler(void);
 extern void Timer1IntHandler(void);
+extern void I2C0SlaveIntHandler(void);
+extern void ADC0_SampleHandler(void);
 
 //*****************************************************************************
 //
@@ -94,7 +96,7 @@ void (* const g_pfnVectors[])(void) =
 		IntDefaultHandler,// UART0 Rx and Tx
 		IntDefaultHandler,// UART1 Rx and Tx
 		IntDefaultHandler,// SSI0 Rx and Tx
-		IntDefaultHandler,// I2C0 Master and Slave
+		I2C0SlaveIntHandler,// I2C0 Master and Slave
 		IntDefaultHandler,// PWM Fault
 		IntDefaultHandler,// PWM Generator 0
 		IntDefaultHandler,// PWM Generator 1
@@ -102,7 +104,7 @@ void (* const g_pfnVectors[])(void) =
 		IntDefaultHandler,// Quadrature Encoder 0
 		IntDefaultHandler,// ADC Sequence 0
 		IntDefaultHandler,// ADC Sequence 1
-		IntDefaultHandler,// ADC Sequence 2
+		ADC0_SampleHandler,// ADC Sequence 2
 		IntDefaultHandler,// ADC Sequence 3
 		IntDefaultHandler,// Watchdog timer
 		IntDefaultHandler,// Timer 0 subtimer A

@@ -68,11 +68,14 @@
 #include "sonar_task.h"
 #include "transmit_task.h"
 #include "adc_setup.h"
+#include "audio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+
+#include "BatterySensor.h"
 
 //*****************************************************************************
 //
@@ -113,10 +116,22 @@
 
 //****************************************************************************
 //
+// Motor Speeds
+//
+//****************************************************************************
+
+int32_t leftSpeed;
+int32_t rightSpeed;
+
+uint32_t currentRightSpeed = 0;
+uint32_t currentLeftSpeed = 0;
+
+//****************************************************************************
+//
 // Debugging Macros
 //
 //****************************************************************************
-#define SONAR_CONNECTED 0
+#define SONAR_CONNECTED 1
 
 //****************************************************************************
 //
@@ -131,6 +146,14 @@ uint32_t g_ui32SysClock;
 //
 //*****************************************************************************
 xSemaphoreHandle g_pUARTSemaphore;
+
+xSemaphoreHandle g_pTemperatureSemaphore;
+
+xSemaphoreHandle g_pI2CSemaphore;
+
+xSemaphoreHandle g_pProximitySemaphore;
+
+xSemaphoreHandle g_pBatterySemaphore;
 
 //*****************************************************************************
 //
@@ -189,14 +212,9 @@ ConfigureUART(void)
 	ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
 	//
-	// Use the internal 16MHz oscillator as the UART clock source.
-	//
-	UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
-
-	//
 	// Initialize the UART for console I/O.
 	//
-	UARTStdioConfig(0, 115200, 16000000);
+	UARTStdioConfig(0, 115200, g_ui32SysClock);
 }
 
 //*****************************************************************************
@@ -229,6 +247,50 @@ main(void)
 	// Create a mutex to guard the UART.
 	//
 	g_pUARTSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the ADC
+	//
+	g_pTemperatureSemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the Proximity values
+	//
+	g_pProximitySemaphore = xSemaphoreCreateMutex();
+	//
+	// Create a mutex to guard the battery level
+	//
+	g_pBatterySemaphore = xSemaphoreCreateMutex();
+	//
+	// Create semaphore to wake transmit task
+	//
+	g_pI2CSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreTake(g_pI2CSemaphore, 0); //Take semaphore for safety
+
+	//****************************************
+	//Motor Stuff
+	/*
+	void ConfigurePWM();
+	// Setup additional GPIO pins for motors
+	void ConfigureMotorGPIO();
+	// Setup GPIO pins for monitoring motor speed
+	void ConfigureMotorSpeedSensorGPIO();
+	// Detect Left Motor Rotations (speed)
+	uint32_t CalculateLeftSpeed();
+	// Detect Right Motor Rotations (speed)
+	uint32_t CalculateRightSpeed();
+	// More accurate left rotation (speed)
+	uint32_t returnLeftSpeed();
+	// More accurate right rotation (speed)
+	uint32_t returnRightSpeed();
+	// Set motor speeds
+	void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed); //rightSpeed -= 4;
+	*/
+	//****************************************
+
+	leftSpeed = 40;
+	rightSpeed = 36;
+	ConfigurePWM();
+	ConfigureMotorGPIO();
+	setMotorSpeed(leftSpeed, rightSpeed);
 
 	//Initialize the ADC functionality
 	if (ADCInit() != 0)
@@ -251,6 +313,22 @@ main(void)
 		while(1)
 		{
 			UARTprintf("\nTransmit task failed to initialize\n");
+		}
+	}
+
+	if(BatteryTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nBattery task failed to initialize\n");
+		}
+	}
+
+	if(AudioTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nAudio task failed to initialize\n");
 		}
 	}
 

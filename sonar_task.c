@@ -53,6 +53,8 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "motors.h"
+
 //*****************************************************************************
 //
 // The stack size for the test task.
@@ -87,14 +89,14 @@
 #define TESTS_PER_SCENARIO 10
 
 // Number of sonar sensors connected
-#define NUM_SONAR 8
+#define NUM_SONAR 7
 
 //*****************************************************************************
 //
 // Default test message delay value (in ms). Message will print once per interval
 //
 //*****************************************************************************
-#define TEST_DELAY        1000
+//#define TEST_DELAY        1000
 
 //*****************************************************************************
 //
@@ -107,7 +109,11 @@ volatile uint32_t g_ui32PulseLengthTicks; // Length of ultrasonic echo pulse in 
 
 extern xSemaphoreHandle g_pUARTSemaphore;
 
+extern xSemaphoreHandle g_pProximitySemaphore;
+
 extern uint32_t g_ui32SysClock;
+
+volatile int32_t ranges[NUM_SONAR];
 
 //*****************************************************************************
 //
@@ -166,19 +172,19 @@ void selectSonar(uint8_t select)
 static void
 SonarTask(void *pvParameters)
 {
-	portTickType ui32WakeTime;
-	uint32_t ui32TestDelay;
+	//portTickType ui32WakeTime;
+	//uint32_t ui32TestDelay;
 	// uint8_t i8Message;
 
 	//
 	// Initialize the Test Delay to default value.
 	//
-	ui32TestDelay = TEST_DELAY;
+	//ui32TestDelay = TEST_DELAY;
 
 	//
 	// Get the current tick count.
 	//
-	ui32WakeTime = xTaskGetTickCount();
+	//ui32WakeTime = xTaskGetTickCount();
 
 	//
 	// Counts number of tests for each setup
@@ -193,7 +199,7 @@ SonarTask(void *pvParameters)
 		//
 		// Wait for the required amount of time.
 		//
-		vTaskDelayUntil(&ui32WakeTime, ui32TestDelay / portTICK_RATE_MS);
+		//vTaskDelayUntil(&ui32WakeTime, ui32TestDelay / portTICK_RATE_MS);
 /*
 
 		if (testCount > TESTS_PER_SCENARIO) {
@@ -215,7 +221,7 @@ SonarTask(void *pvParameters)
 		// Cycle through each of the sonar sensors
 		//
 		uint8_t i;
-		int32_t ranges[NUM_SONAR];
+
 		for (i = 0; i < NUM_SONAR; i++)
 		{
 			uint32_t ui32PulseStartTime = 0; // Timer value at echo pulse rising edge
@@ -234,13 +240,15 @@ SonarTask(void *pvParameters)
 
 			// // // Send a trigger pulse \\ \\ \\
 
+			xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
+
 			// Disable context switching
 			taskENTER_CRITICAL();
 
 			//
 			// Turn on pulse.
 			//
-			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, GPIO_PIN_7);
+			MAP_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, GPIO_PIN_5);
 
 			//
 			// Delay for 5 us.
@@ -250,7 +258,7 @@ SonarTask(void *pvParameters)
 			//
 			// Turn off pulse.
 			//
-			MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_7, 0);
+			MAP_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_5, 0);
 
 
 			// // // Measure pulse length \\ \\ \\
@@ -331,6 +339,8 @@ SonarTask(void *pvParameters)
 			// Re-enable context switching
 			taskEXIT_CRITICAL();
 
+			xSemaphoreGive(g_pProximitySemaphore);
+
 			//
 			// Print the start time, stop time, and pulse length
 			//
@@ -378,18 +388,33 @@ SonarTask(void *pvParameters)
 			// Wait between sonars
 			//MAP_SysCtlDelay(g_ui32SysClock / 3 );
 		} //end for
-		xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+		//taskENTER_CRITICAL();
+		/*xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 		UARTprintf("\nProx=", ranges[0], ranges[1], ranges[2]);
 		int j;
 		for (j = 0; j < NUM_SONAR; j++)
 		{
+			if (ranges[j] <= 25)
+			{
+				setMotorSpeed(0, 0);
+			}
 			UARTprintf(" %d", ranges[j]);
 		}
-		UARTprintf(" cm\n");
+		UARTprintf(" cm\n");*/
+		int j;
+		for (j = 0; j < NUM_SONAR; j++)
+		{
+			if (ranges[j] <= 50)
+			{
+				setMotorSpeed(0, 0);
+			}
+		}
 		xSemaphoreGive(g_pUARTSemaphore);
+		//taskEXIT_CRITICAL();
 
 		// Wait .25 seconds before firing array again
-		MAP_SysCtlDelay(g_ui32SysClock / 3 / 4 );
+		//MAP_SysCtlDelay(g_ui32SysClock / 3 / 4 );
+		vTaskDelay(250);
 
 
 	}
@@ -409,6 +434,7 @@ SonarTaskInit(void)
 	// Enable GPIO M and B
 	//
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOM);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOK);
 
@@ -423,7 +449,7 @@ SonarTaskInit(void)
 	//
 	// Enable the GPIO pin for the trigger pulse (M7).
 	//
-	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTM_BASE, GPIO_PIN_7);
+	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_5);
 
 	//
 	// Enable GPIO pin for timer event capture (M4).
