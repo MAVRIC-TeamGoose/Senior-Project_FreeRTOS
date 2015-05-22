@@ -187,17 +187,19 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 	// Convert peak frequency bucket number to frequency
 	//	int peakFrequency = peakBucket * SAMPLING_RATE / NUM_SAMPLES;
 
-	//xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-	//int i;
-	//for (i = 0; i < NUM_FREQS; i++)
+	/*
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	int i;
+	for (i = 0; i < NUM_FREQS; i++)
 	{
 		// Print each frequency (closest bucket) and its magnitude
 		// Note: Print output is cast to integer due to restrictions in UARTprintf function
-		//UARTprintf("%d Hz: %d\n", freqs[i], (int) magOutput[freqIndex(freqs[i])]);
+		UARTprintf("%d Hz: %d\n", freqs[i], (int) magOutput[freqIndex(freqs[i])]);
 
 	}
-	//UARTprintf("\n\n");
-	//xSemaphoreGive(g_pUARTSemaphore);
+	UARTprintf("\n\n");
+	xSemaphoreGive(g_pUARTSemaphore);
+	*/
 
 }
 
