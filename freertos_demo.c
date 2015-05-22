@@ -300,7 +300,7 @@ main(void)
 	setMotorSpeed(leftSpeed, rightSpeed);
 
 	//Initialize the ADC functionality
-	if (temperature_TaskInit() != 0)
+	if (ADCInit() != 0)
 	{
 		UARTprintf("\nADC failed to initialize\n");
 	}
