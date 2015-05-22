@@ -34,28 +34,20 @@
 #include "semphr.h"
 
 #include "audio.h"
-/*
- * Constants
- */
-
-// Number of samples for FFT
-#define NUM_SAMPLES 128
-
-// Rate to sample input
-#define SAMPLING_RATE 44100
-
-// Number of frequencies to use for testing
-#define NUM_FREQS 4
 
 /*
  *  Global variables
  */
+
 // Used to guard UART
 extern xSemaphoreHandle g_pUARTSemaphore;
 
 // Frequencies to check
 uint32_t freqs[NUM_FREQS] = { 1000, 2000, 3000, 4000 };
 
+// Storage for magnitude of frequencies we are checking;
+float32_t left_freq_magnitude[NUM_FREQS];
+float32_t right_freq_magnitude[NUM_FREQS];
 
 // Pointer to where the next sample should
 // go in the input buffer.
@@ -233,6 +225,12 @@ void ADC0_SampleHandler()
 		runFFT(inputDataL, outputDataL);
 		runFFT(inputDataR, outputDataR);
 
+		// Add required frequencies for brain to transmit output buffer
+		int i;
+		for (i = 0; i < NUM_FREQS; i++) {
+			left_freq_magnitude[i] = outputDataL[freqIndex(freqs[i])];
+			right_freq_magnitude[i] = outputDataR[freqIndex(freqs[i])];
+		}
 
 		// TODO: maybe give a semaphore to signal done??
 	}

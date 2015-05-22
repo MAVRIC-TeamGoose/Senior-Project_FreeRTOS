@@ -9,6 +9,19 @@
 #ifndef AUDIO_H_
 #define AUDIO_H_
 
+/*
+ * Constants
+ */
+
+// Number of samples for FFT
+#define NUM_SAMPLES 128
+
+// Rate to sample input
+#define SAMPLING_RATE 44100
+
+// Number of frequencies to transmit to brain
+#define NUM_FREQS 4
+
 void configureADC();
 void runFFT(float32_t*, float32_t*);
 void TIMER1_Handler();
