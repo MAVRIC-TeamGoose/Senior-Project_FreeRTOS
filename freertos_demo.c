@@ -69,7 +69,7 @@
 #include "sonar_task.h"
 #include "transmit_task.h"
 #include "adc_setup_task.h"
-#include "audio_task.h"
+#include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
 #include "tempSensor_task.h"

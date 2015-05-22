@@ -100,7 +100,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="tm4c123gh6pm.cmd|freertos_demo_ccs.cmd|startup_ccs.c|tm4c123gh6pm_startup_ccs.c|led_task.c|switch_task.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="tempSensor_task.c|tm4c123gh6pm.cmd|freertos_demo_ccs.cmd|startup_ccs.c|tm4c123gh6pm_startup_ccs.c|led_task.c|switch_task.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
