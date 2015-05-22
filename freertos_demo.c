@@ -148,8 +148,6 @@ xSemaphoreHandle g_pUARTSemaphore;
 
 xSemaphoreHandle g_pTemperatureSemaphore;
 
-xSemaphoreHandle g_pI2CSemaphore;
-
 xSemaphoreHandle g_pProximitySemaphore;
 
 xSemaphoreHandle g_pBatterySemaphore;
@@ -263,11 +261,6 @@ main(void)
 	// Create a mutex to guard the battery level
 	//
 	g_pBatterySemaphore = xSemaphoreCreateMutex();
-	//
-	// Create semaphore to wake transmit task
-	//
-	g_pI2CSemaphore = xSemaphoreCreateBinary();
-	xSemaphoreTake(g_pI2CSemaphore, 0); //Take semaphore for safety
 
 	//****************************************
 	//Motor Stuff

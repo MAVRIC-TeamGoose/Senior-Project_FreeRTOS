@@ -152,11 +152,11 @@ extern xSemaphoreHandle g_pTemperatureSemaphore;
 
 extern xSemaphoreHandle g_pUARTSemaphore;
 
-extern xSemaphoreHandle g_pI2CSemaphore;
-
 extern xSemaphoreHandle g_pProximitySemaphore;
 
 extern xSemaphoreHandle g_pBatterySemaphore;
+
+portBASE_TYPE xHigherPriorityTaskWoken;
 
 //*****************************************************************************
 //
@@ -170,6 +170,7 @@ I2C0SlaveIntHandler(void)
     // Clear the I2C0 interrupt flag.
     //
     MAP_I2CSlaveIntClear(I2C0_BASE);
+    xHigherPriorityTaskWoken = pdFALSE;
 
     if (MAP_I2CSlaveStatus(I2C0_BASE) == I2C_SLAVE_ACT_RREQ_FBR) {
     	//
@@ -179,11 +180,11 @@ I2C0SlaveIntHandler(void)
     	switch(g_data_type) { //Switch statement for sending different data points
     		case TEMPERATUREDATA :
     			//Ensure Temperature is not being read during conversion
-    			xSemaphoreTake(g_pTemperatureSemaphore, portMAX_DELAY);
+    			xSemaphoreTakeFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
     	    	//Convert adc reading into two byte array
     	    	adc_i2c[0] = (*adc_value & 0xff00) >> 8;
     	    	adc_i2c[1] = (*adc_value & 0x00ff);      //Lowest 8 bits
-    	    	xSemaphoreGive(g_pTemperatureSemaphore);
+    	    	xSemaphoreGiveFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
 
     	    	g_temp_flag = 1; //Set flag for temperature
     	    	g_prox_flag = 0;
@@ -231,11 +232,11 @@ I2C0SlaveIntHandler(void)
     			break;
 
     		case BATTDATA :
-    			xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
+    			xSemaphoreTakeFromISR(g_pBatterySemaphore, &xHigherPriorityTaskWoken);
     			//Convert adc reading into two byte array
     	    	batt_i2c[0] = (i32VoltageValue & 0xff00) >> 8;
     	    	batt_i2c[1] = (i32VoltageValue & 0x00ff);      //Lowest 8 bits
-    	    	xSemaphoreGive(g_pBatterySemaphore);
+    	    	xSemaphoreGiveFromISR(g_pBatterySemaphore, &xHigherPriorityTaskWoken);
     	    	g_temp_flag = 0;
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 1;
@@ -406,10 +407,10 @@ void
 formatProx(uint8_t sensor)
 {
 	//Convert proximity into two byte array
-	//xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY); //THIS MIGHT BE BAD TO TAKE THIS OUT
+	xSemaphoreTakeFromISR(g_pProximitySemaphore, &xHigherPriorityTaskWoken);
 	prox_i2c[0] = (ranges[sensor - 2] & 0xff00) >> 8;
 	prox_i2c[1] = (ranges[sensor - 2] & 0x00ff); //Lowest 8 bits
-	//xSemaphoreGive(g_pProximitySemaphore);
+	xSemaphoreGiveFromISR(g_pProximitySemaphore, &xHigherPriorityTaskWoken);
 	g_prox_flag = 1; //Set proximity flag
 	g_batt_flag = 0;
 	g_temp_flag = 0;
