@@ -34,6 +34,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "arm_math.h"
 
 #include "inc/hw_adc.h" //Had to change one line here on line 416 from 3 to 1
 #include "inc/hw_memmap.h"
@@ -53,6 +54,7 @@
 #include "utils/uartstdio.h"
 
 #include "transmit_task.h"
+#include "audio.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -147,6 +149,16 @@ uint8_t prox_i2c[2];    //Two byte array to hold prox value
 extern uint32_t i32VoltageValue; //Battery voltage
 
 uint8_t batt_i2c[2];
+
+//*****************************************************************************
+//
+// Audio Frequency Values.
+//
+//*****************************************************************************
+
+// Frequency magnitude information to be sent to brain
+extern float32_t left_freq_magnitude[NUM_FREQS];
+extern float32_t right_freq_magnitude[NUM_FREQS];
 
 extern xSemaphoreHandle g_pTemperatureSemaphore;
 

@@ -30,6 +30,8 @@
 // The priorities of the various tasks.
 //
 //*****************************************************************************
+
+// FreeRTOS task priorities: High number = high priority
 #define PRIORITY_TRANSMIT_TASK    4
 #define PRIORITY_SONAR_TASK       3
 #define PRIORITY_SWITCH_TASK      2
@@ -37,6 +39,7 @@
 #define PRIORITY_BATTERY_TASK	  5
 #define PRIORITY_AUDIO_TASK       5
 
+// ARM interrupt priorities: low number = high priority
 #define PRIORITY_ADC0_SS2_INT	  6
 #define PRIORITY_TIMER1_INT       6
 #define PRIORITY_I2C0_INT         6
