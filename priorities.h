@@ -37,14 +37,14 @@
 #define PRIORITY_SWITCH_TASK      2
 #define PRIORITY_LED_TASK         1
 #define PRIORITY_BATTERY_TASK	  5
-#define PRIORITY_AUDIO_TASK       5
+#define PRIORITY_AUDIO_TASK       6
 #define PRIORITY_TEMPERATURE_TASK 5
 #define PRIORITY_DRUNKEN_TASK	  5
 
 // ARM interrupt priorities: low number = high priority
 #define PRIORITY_ADC0_SS2_INT	  6
 #define PRIORITY_TIMER1_INT       6
-#define PRIORITY_I2C0_INT         6
+#define PRIORITY_I2C0_INT         0
 
 
 #endif // __PRIORITIES_H__

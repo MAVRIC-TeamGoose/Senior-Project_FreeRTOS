@@ -50,8 +50,6 @@ extern xSemaphoreHandle g_pAudioSemaphore;
 // Signals FFT input buffer full, and ready to run FFTs
 xSemaphoreHandle g_FFTInputBufferFullSemaphore;
 
-
-
 // Used when calling semaphore functions from ISRs
 portBASE_TYPE xHigherPriorityTaskWoken;
 
@@ -138,6 +136,7 @@ static void AudioTask(void *pvParameters)
 		// Set priority for ADC0 SS2 interrupt
 		//MAP_IntPrioritySet(PRIORITY_ADC0_SS2_INT);
 
+		MAP_IntPrioritySet(INT_ADC0SS2, (PRIORITY_ADC0_SS2_INT << 5));
 		// Enable NVIC interrupt for ADC0 SS3
 		MAP_IntEnable(INT_ADC0SS2);
 
@@ -210,7 +209,7 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 	// Convert peak frequency bucket number to frequency
 	//	int peakFrequency = peakBucket * SAMPLING_RATE / NUM_SAMPLES;
 
-	/*
+
 	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	int i;
 	for (i = 0; i < NUM_FREQS; i++)
@@ -222,12 +221,14 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 	}
 	UARTprintf("\n\n");
 	xSemaphoreGive(g_pUARTSemaphore);
-	*/
+
 
 }
 
 void ADC0_SampleHandler()
 {
+	xHigherPriorityTaskWoken = pdFALSE;
+
 	// Turn on debuggin signal
 	MAP_GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, GPIO_PIN_3);
 
@@ -253,8 +254,11 @@ void ADC0_SampleHandler()
 		MAP_TimerDisable(TIMER2_BASE, TIMER_A);
 
 		// Give a semaphore to signal done??
-		xSemaphoreGiveFromISR(g_FFTInputBufferFullSemaphore, xHigherPriorityTaskWoken)
+		xSemaphoreGiveFromISR(g_FFTInputBufferFullSemaphore, &xHigherPriorityTaskWoken);
 	}
+
+	// Perform a direct context switch if a higher priority task was woken
+	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 // Configure ADC peripheral and FFT

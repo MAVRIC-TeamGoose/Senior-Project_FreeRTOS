@@ -89,6 +89,8 @@ ConfigureTempTimer()
 
     MAP_TimerLoadSet(TIMER1_BASE, TIMER_A, g_ui32SysClock);  //Temp      1000ms
 
+    MAP_IntPrioritySet(INT_TIMER1A, (PRIORITY_TIMER1_INT << 5));
+
     ROM_IntEnable(INT_TIMER1A); //Temp
 
     ROM_TimerIntEnable(TIMER1_BASE, TIMER_TIMA_TIMEOUT); //Temp

@@ -353,6 +353,9 @@ I2C0SlaveIntHandler(void)
     			break;
     	}
     }
+
+    // Perform a direct context switch if a higher priority task was woken
+    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 //*****************************************************************************
@@ -395,8 +398,8 @@ ConfigureI2C0(void)
 	//
 	MAP_IntMasterEnable();
 
-	// Set priority for ADC0 SS2 interrupt
-    //MAP_IntPrioritySet(PRIORITY_ADC0_SS2_INT);
+	// Set priority for I2C interrupt
+    MAP_IntPrioritySet(INT_I2C0, (PRIORITY_I2C0_INT << 5));
 
 	//
 	// Enable the I2C0 interrupt on the processor (NVIC).
