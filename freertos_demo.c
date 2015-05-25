@@ -51,6 +51,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
@@ -62,6 +63,7 @@
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
 #include "driverlib/uart.h"
 
 #include "utils/uartstdio.h"
@@ -69,7 +71,7 @@
 #include "sonar_task.h"
 #include "transmit_task.h"
 #include "adc_setup_task.h"
-#include "audio_task.h"
+#include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
 
@@ -186,6 +188,54 @@ vApplicationStackOverflowHook(xTaskHandle *pxTask, char *pcTaskName)
 	}
 }
 
+uint32_t waitForStart()
+{
+	uint32_t newSeed;
+
+	// Enable peripherals
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
+	MAP_SysCtlDelay(2);
+
+	// Set up timer
+	MAP_TimerConfigure(TIMER4_BASE, TIMER_CFG_PERIODIC_UP);
+
+	// Set up button
+	MAP_GPIOPinTypeGPIOInput(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0);
+	MAP_GPIOIntTypeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_HIGH_LEVEL);
+	MAP_GPIODirModeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
+	MAP_GPIOPadConfigSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0,
+	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+	MAP_GPIOIntEnable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+
+	// Start timer
+	MAP_TimerEnable(TIMER4_BASE, TIMER_A);
+
+	int temp = MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	ROM_SysCtlDelay(2);
+	// Wait for button
+	while(!(MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0))
+	{
+
+	}
+
+	// Capture timer value
+	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
+
+	// Disable timer
+	MAP_TimerDisable(TIMER4_BASE, TIMER_A);
+	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_TIMER4);
+
+	// Disable button
+	MAP_GPIOIntDisable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_GPIOJ);
+
+	// Return timer
+	return newSeed;
+}
+
 //*****************************************************************************
 //
 // Configure the UART and its pins.  This must be called before UARTprintf().
@@ -225,6 +275,8 @@ ConfigureUART(void)
 int
 main(void)
 {
+
+
 	//
 	// Set the clocking to run directly from the crystal at 120MHz.
 	//
@@ -232,6 +284,13 @@ main(void)
 			SYSCTL_OSC_MAIN |
 			SYSCTL_USE_PLL |
 			SYSCTL_CFG_VCO_480), 120000000);
+
+	// Wait for startup, and get a random seed.
+	// Human button input is used as a source of entropy
+	uint32_t seed = waitForStart();
+
+	//Seed the RNG for drunken sailor walk routine
+	srand(seed);
 
 	//
 	// Initialize the UART and configure it for 115,200, 8-N-1 operation.
@@ -281,8 +340,8 @@ main(void)
 	*/
 	//****************************************
 
-	leftSpeed = 40;
-	rightSpeed = 36;
+	leftSpeed = 50;
+	rightSpeed = 50;
 	ConfigurePWM();
 	ConfigureMotorGPIO();
 	setMotorSpeed(leftSpeed, rightSpeed);
