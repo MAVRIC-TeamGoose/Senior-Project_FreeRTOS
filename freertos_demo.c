@@ -188,6 +188,13 @@ vApplicationStackOverflowHook(xTaskHandle *pxTask, char *pcTaskName)
 	}
 }
 
+// Waits for start button press, and returns a random number
+// to be used to seed the RNG. Entropy for the random number
+// comes from human input (button press) and a hardware timer.
+//
+// NOTE: Should be called before any other configuration, as the
+// function turns enables and eventually disables several peripherals
+// (GPIO and timer)
 uint32_t waitForStart()
 {
 	uint32_t newSeed;
@@ -202,32 +209,27 @@ uint32_t waitForStart()
 
 	// Set up button
 	MAP_GPIOPinTypeGPIOInput(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0);
-	MAP_GPIOIntTypeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_HIGH_LEVEL);
+	MAP_GPIOIntTypeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_LOW_LEVEL);
 	MAP_GPIODirModeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
 	MAP_GPIOPadConfigSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0,
-	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 	MAP_GPIOIntEnable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
 	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
 
 	// Start timer
 	MAP_TimerEnable(TIMER4_BASE, TIMER_A);
 
-	int temp = MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
-	ROM_SysCtlDelay(2);
 	// Wait for button
-	while(!(MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0))
-	{
-
-	}
+	while(!(MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0)) {}
 
 	// Capture timer value
 	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
 
-	// Disable timer
+	// Disable and shutdown timer
 	MAP_TimerDisable(TIMER4_BASE, TIMER_A);
 	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_TIMER4);
 
-	// Disable button
+	// Disable button and shutdown GPIOJ
 	MAP_GPIOIntDisable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
 	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
 	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_GPIOJ);
@@ -301,6 +303,9 @@ main(void)
 	// Print demo introduction.
 	//
 	UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
+
+	// Debugging printout for RNG seeding
+	//UARTprintf("Seed:%u\nR1:%u\nR2:%u\nR3:%u\nR4:%u\n", seed, rand(), rand(), rand(), rand());
 
 	//
 	// Create a mutex to guard the UART.
