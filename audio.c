@@ -43,6 +43,18 @@
 // Used to guard UART
 extern xSemaphoreHandle g_pUARTSemaphore;
 
+// Guard audio frequency data (the data actually used
+// by the transmit task)
+extern xSemaphoreHandle g_pAudioSemaphore;
+
+// Signals FFT input buffer full, and ready to run FFTs
+xSemaphoreHandle g_FFTInputBufferFullSemaphore;
+
+
+
+// Used when calling semaphore functions from ISRs
+portBASE_TYPE xHigherPriorityTaskWoken;
+
 // Frequencies to check
 uint32_t freqs[NUM_FREQS] = { 1000, 2000, 3000, 4000 };
 
@@ -131,6 +143,24 @@ static void AudioTask(void *pvParameters)
 
 		// Start timer
 		MAP_TimerEnable(TIMER2_BASE, TIMER_A);
+
+		// Wait for all samples to be done
+		xSemaphoreTake(g_FFTInputBufferFullSemaphore, portMAX_DELAY);
+
+		// Run FFTs
+		taskENTER_CRITICAL();
+		runFFT(inputDataL, outputDataL);
+		runFFT(inputDataR, outputDataR);
+		taskEXIT_CRITICAL();
+
+		// Add required frequencies for brain to transmit output buffer
+		int i;
+		xSemaphoreTake(g_pAudioSemaphore, portMAX_DELAY);
+		for (i = 0; i < NUM_FREQS; i++) {
+			left_freq_magnitude[i] = outputDataL[freqIndex(freqs[i])];
+			right_freq_magnitude[i] = outputDataR[freqIndex(freqs[i])];
+		}
+		xSemaphoreGive(g_pAudioSemaphore);
 
 	}
 
@@ -222,18 +252,8 @@ void ADC0_SampleHandler()
 		MAP_ADCIntDisable(ADC0_BASE, 3);
 		MAP_TimerDisable(TIMER2_BASE, TIMER_A);
 
-		// Run the transform
-		runFFT(inputDataL, outputDataL);
-		runFFT(inputDataR, outputDataR);
-
-		// Add required frequencies for brain to transmit output buffer
-		int i;
-		for (i = 0; i < NUM_FREQS; i++) {
-			left_freq_magnitude[i] = outputDataL[freqIndex(freqs[i])];
-			right_freq_magnitude[i] = outputDataR[freqIndex(freqs[i])];
-		}
-
-		// TODO: maybe give a semaphore to signal done??
+		// Give a semaphore to signal done??
+		xSemaphoreGiveFromISR(g_FFTInputBufferFullSemaphore, xHigherPriorityTaskWoken)
 	}
 }
 
@@ -254,6 +274,10 @@ uint32_t AudioTaskInit(void)
 
 	// Set up ADC sampling and interrupt
 	configureADC();
+
+	// Create binary semaphore for signalling that
+	// the FFT input buffer is full.
+	vSemaphoreCreateBinary(g_FFTInputBufferFullSemaphore);
 
 	//
 	// Create the audio task.

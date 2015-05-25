@@ -158,6 +158,8 @@ xSemaphoreHandle g_pProximitySemaphore;
 
 xSemaphoreHandle g_pBatterySemaphore;
 
+xSemaphoreHandle g_pAudioSemaphore;
+
 //*****************************************************************************
 //
 // The error routine that is called if the driver library encounters an error.
@@ -333,6 +335,11 @@ main(void)
 	// Create a mutex to guard the battery level
 	//
 	g_pBatterySemaphore = xSemaphoreCreateMutex();
+
+	//
+	// Create a mutex to guard the battery level
+	//
+	g_pAudioSemaphore = xSemaphoreCreateMutex();
 
 	//****************************************
 	//Motor Stuff
