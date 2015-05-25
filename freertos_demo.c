@@ -74,7 +74,6 @@
 #include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
-#include "tempSensor_task.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
