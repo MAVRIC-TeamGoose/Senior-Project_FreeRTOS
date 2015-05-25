@@ -51,6 +51,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
@@ -62,6 +63,7 @@
 #include "driverlib/rom.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
 #include "driverlib/uart.h"
 
 #include "utils/uartstdio.h"
@@ -156,8 +158,6 @@ xSemaphoreHandle g_pProximitySemaphore;
 
 xSemaphoreHandle g_pBatterySemaphore;
 
-
-
 //*****************************************************************************
 //
 // The error routine that is called if the driver library encounters an error.
@@ -187,6 +187,56 @@ vApplicationStackOverflowHook(xTaskHandle *pxTask, char *pcTaskName)
 	while(1)
 	{
 	}
+}
+
+// Waits for start button press, and returns a random number
+// to be used to seed the RNG. Entropy for the random number
+// comes from human input (button press) and a hardware timer.
+//
+// NOTE: Should be called before any other configuration, as the
+// function turns enables and eventually disables several peripherals
+// (GPIO and timer)
+uint32_t waitForStart()
+{
+	uint32_t newSeed;
+
+	// Enable peripherals
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
+	MAP_SysCtlDelay(2);
+
+	// Set up timer
+	MAP_TimerConfigure(TIMER4_BASE, TIMER_CFG_PERIODIC_UP);
+
+	// Set up button
+	MAP_GPIOPinTypeGPIOInput(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0);
+	MAP_GPIOIntTypeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_LOW_LEVEL);
+	MAP_GPIODirModeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
+	MAP_GPIOPadConfigSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0,
+	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+	MAP_GPIOIntEnable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+
+	// Start timer
+	MAP_TimerEnable(TIMER4_BASE, TIMER_A);
+
+	// Wait for button
+	while(!(MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0)) {}
+
+	// Capture timer value
+	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
+
+	// Disable and shutdown timer
+	MAP_TimerDisable(TIMER4_BASE, TIMER_A);
+	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_TIMER4);
+
+	// Disable button and shutdown GPIOJ
+	MAP_GPIOIntDisable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_GPIOJ);
+
+	// Return timer
+	return newSeed;
 }
 
 //*****************************************************************************
@@ -228,6 +278,8 @@ ConfigureUART(void)
 int
 main(void)
 {
+
+
 	//
 	// Set the clocking to run directly from the crystal at 120MHz.
 	//
@@ -235,6 +287,13 @@ main(void)
 			SYSCTL_OSC_MAIN |
 			SYSCTL_USE_PLL |
 			SYSCTL_CFG_VCO_480), 120000000);
+
+	// Wait for startup, and get a random seed.
+	// Human button input is used as a source of entropy
+	uint32_t seed = waitForStart();
+
+	//Seed the RNG for drunken sailor walk routine
+	srand(seed);
 
 	//
 	// Initialize the UART and configure it for 115,200, 8-N-1 operation.
@@ -254,6 +313,9 @@ main(void)
 
 
 //	UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
+
+	// Debugging printout for RNG seeding
+	//UARTprintf("Seed:%u\nR1:%u\nR2:%u\nR3:%u\nR4:%u\n", seed, rand(), rand(), rand(), rand());
 
 	//
 	// Create a mutex to guard the UART.
@@ -293,8 +355,8 @@ main(void)
 	*/
 	//****************************************
 
-	leftSpeed = 40;
-	rightSpeed = 36;
+	leftSpeed = 50;
+	rightSpeed = 50;
 	ConfigurePWM();
 	ConfigureMotorGPIO();
 	setMotorSpeed(leftSpeed, rightSpeed);
