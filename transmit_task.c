@@ -181,7 +181,7 @@ I2C0SlaveIntHandler(void)
     //
     // Clear the I2C0 interrupt flag.
     //
-    MAP_I2CSlaveIntClear(I2C0_BASE);
+    //MAP_I2CSlaveIntClear(I2C0_BASE);
     xHigherPriorityTaskWoken = pdFALSE;
 
     if (MAP_I2CSlaveStatus(I2C0_BASE) == I2C_SLAVE_ACT_RREQ_FBR) {
@@ -354,6 +354,7 @@ I2C0SlaveIntHandler(void)
     	}
     }
 
+    MAP_I2CSlaveIntClear(I2C0_BASE);
     // Perform a direct context switch if a higher priority task was woken
     portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
