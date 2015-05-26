@@ -244,7 +244,7 @@ SonarTask(void *pvParameters)
 			xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 
 			// Disable context switching
-			taskENTER_CRITICAL();
+			//taskENTER_CRITICAL();
 
 			//
 			// Turn on pulse.
@@ -338,7 +338,7 @@ SonarTask(void *pvParameters)
 			g_ui32PulseLengthTicks = (ui32PulseStopTime - ui32PulseStartTime) & 0x0FFFFFF;
 
 			// Re-enable context switching
-			taskEXIT_CRITICAL();
+			//taskEXIT_CRITICAL();
 
 			xSemaphoreGive(g_pProximitySemaphore);
 

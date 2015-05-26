@@ -210,7 +210,7 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 	//	int peakFrequency = peakBucket * SAMPLING_RATE / NUM_SAMPLES;
 
 
-	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	/*xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
 	int i;
 	for (i = 0; i < NUM_FREQS; i++)
 	{
@@ -220,7 +220,7 @@ void runFFT(float32_t* inputArray, float32_t* magOutput)
 
 	}
 	UARTprintf("\n\n");
-	xSemaphoreGive(g_pUARTSemaphore);
+	xSemaphoreGive(g_pUARTSemaphore);*/
 
 
 }

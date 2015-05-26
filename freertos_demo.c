@@ -308,7 +308,7 @@ main(void)
 			 "\nComputer Engineering & Systems"
 			 "\nSenior Project -"
 			 "June 4, 2015"
-			 "\nMobile Autonomous Vehicle for Research in Intelligent Control - MARVIC II"
+			 "\nMobile Autonomous Vehicle for Research in Intelligent Control - MAVRIC II"
 			 "\nSponsor: Ph.D George Mobus"
 			 "\nTeam Goose: Thinh Le, Drew Seth May, Keith Lueneburg, Brandon Thomas Dean\n\n");
 
@@ -334,7 +334,6 @@ main(void)
 	// Create a mutex to guard the battery level
 	//
 	g_pBatterySemaphore = xSemaphoreCreateMutex();
-
 	//
 	// Create a mutex to guard the battery level
 	//
