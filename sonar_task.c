@@ -402,6 +402,9 @@ SonarTask(void *pvParameters)
 			UARTprintf(" %d", ranges[j]);
 		}
 		UARTprintf(" cm\n");*/
+
+		// TODO: uncomment this for collision avoidance
+		/*
 		int j;
 		for (j = 0; j < NUM_SONAR; j++)
 		{
@@ -410,6 +413,7 @@ SonarTask(void *pvParameters)
 				setMotorSpeed(0, 0);
 			}
 		}
+		*/
 		xSemaphoreGive(g_pUARTSemaphore);
 		//taskEXIT_CRITICAL();
 
