@@ -34,14 +34,19 @@
 // FreeRTOS task priorities: High number = high priority
 #define PRIORITY_SONAR_TASK       5
 #define PRIORITY_BATTERY_TASK	  3
-#define PRIORITY_AUDIO_TASK       4
+#define PRIORITY_AUDIO_TASK       5
 #define PRIORITY_TEMPERATURE_TASK 3
 #define PRIORITY_DRUNKEN_TASK	  3
 
 // ARM interrupt priorities: low number = high priority
+
+// NOTE: Any ISR which calls a FreeRTOS API function MUST
+// have a priority logically lower (numerically higher) than
+// the value configMAX_SYSCALL_INTERRUPT_PRIORITY, defined
+// in FreeRTOSConfig.h
 #define PRIORITY_ADC0_SS2_INT	  6 // Sampling for audio data
 #define PRIORITY_TIMER1_INT       6 // Timer for temp sensor
-#define PRIORITY_I2C0_INT         4 // Data transmission btw brain and MCU
+#define PRIORITY_I2C0_INT         5 // Data transmission btw brain and MCU
 
 
 #endif // __PRIORITIES_H__
