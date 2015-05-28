@@ -170,6 +170,8 @@ extern xSemaphoreHandle g_pBatterySemaphore;
 
 portBASE_TYPE xHigherPriorityTaskWoken;
 
+extern uint32_t g_ui32SysClock;
+
 //*****************************************************************************
 //
 // The interrupt handler for the for I2C0 data slave interrupt.
@@ -185,6 +187,10 @@ I2C0SlaveIntHandler(void)
     xHigherPriorityTaskWoken = pdFALSE;
 
     if (MAP_I2CSlaveStatus(I2C0_BASE) == I2C_SLAVE_ACT_RREQ_FBR) {
+    	//
+    	// Stretch read delay by .75 cycles of i2c clock (5KHz)
+    	//
+    	MAP_SysCtlDelay(g_ui32SysClock / 3 / 5500); // 150 us
     	//
     	// Read the data from the master. Values will be a key indicating data to be sent.
     	//
