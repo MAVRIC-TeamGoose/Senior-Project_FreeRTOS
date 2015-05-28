@@ -56,7 +56,7 @@ extern xSemaphoreHandle g_pProximitySemaphore;
 // System clock rate in Hz.
 //
 //****************************************************************************
-uint32_t g_ui32Drunken_SysClock;   // number of clock cycles returned from system clock
+extern uint32_t g_ui32SysClock;   // number of clock cycles returned from system clock
 
 
 
@@ -104,7 +104,8 @@ void backUp(){
 	int leftSpeed = -50;
 	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
-	ROM_SysCtlDelay(g_ui32Drunken_SysClock*2/3); // delay for 2 seconds
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	// TODO: We might want to make the robot stop here??
 }
 
 
@@ -119,7 +120,7 @@ int genRand(int min, int max){
 		srand(i);
 		// randValue = rand()%(max-min)+min;
 		randValue = (rand()% max) + min;
-		ROM_SysCtlDelay(g_ui32Drunken_SysClock/3/1000);
+		ROM_SysCtlDelay(g_ui32SysClock/3/1000);
 		i++;
 		return randValue;*/
 	return (rand() % (max - min)) + min
