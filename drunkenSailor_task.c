@@ -109,10 +109,11 @@ void backUp(){
 
 
 /*
- * A generate random value function to generate random values for motor speed
+ * A generate random value function to generate random values for motor speed.
+ * NOTE: The stdlib RNG is seeded randomly upon system startup.
  */
 int genRand(int min, int max){
-	int randValue;
+	/*int randValue;
 	int i = 0;
 	while(1){
 		srand(i);
@@ -120,7 +121,8 @@ int genRand(int min, int max){
 		randValue = (rand()% max) + min;
 		ROM_SysCtlDelay(g_ui32Drunken_SysClock/3/1000);
 		i++;
-		return randValue;
+		return randValue;*/
+	return (rand() % (max - min)) + min
 	}
 }
 
