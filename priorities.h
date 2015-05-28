@@ -41,7 +41,7 @@
 // ARM interrupt priorities: low number = high priority
 #define PRIORITY_ADC0_SS2_INT	  6 // Sampling for audio data
 #define PRIORITY_TIMER1_INT       6 // Timer for temp sensor
-#define PRIORITY_I2C0_INT         4 // Data transmission btw brain and MCU
+#define PRIORITY_I2C0_INT         6 // Data transmission btw brain and MCU
 
 
 #endif // __PRIORITIES_H__
