@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <math.h>
 #include "inc/hw_adc.h"
 #include "inc/hw_ints.h"
@@ -26,7 +27,6 @@
 #include "utils/uartstdio.h"
 #include "driverlib/fpu.h"
 #include "priorities.h"
-#include "stdlib.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
