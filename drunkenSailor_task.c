@@ -85,6 +85,7 @@ void leftTurn(){
 	int leftSpeed = 0;
 	int rightSpeed = 100;
 	setMotorSpeed(leftSpeed, rightSpeed);
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 }
 
 /*
@@ -94,6 +95,7 @@ void rightTurn(){
 	int leftSpeed = 100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 }
 
 /*
