@@ -101,8 +101,8 @@ void rightTurn(){
  * closed to the front side.
  */
 void backUp(){
-	int leftSpeed = 50;
-	int rightSpeed = 50;
+	int leftSpeed = -50;
+	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
 	ROM_SysCtlDelay(g_ui32Drunken_SysClock*2/3); // delay for 2 seconds
 }
@@ -161,6 +161,8 @@ void drunken_Walk(){
 		leftTurn();
 		startWandering();
 	}else{
+		// TODO: Do we want to call start wandering again?
+		// TODO: This will roll another set of random numbers
 		startWandering();   // other than that, resume wandering
 	}
 	xSemaphoreGive(g_pProximitySemaphore);
