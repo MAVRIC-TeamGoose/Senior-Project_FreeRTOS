@@ -1,13 +1,13 @@
 /*
  * Author : Drew May
- * Date   : April 30th 2015
+ * Date   : May 27th 2015
  * Version: 0.7
  * Summary: Tiva TM4C receives sensor data and transmits it through I2C.
  * 			In this example the master is a Raspberry Pi.
  *
  * Pi Code: Located in GitHub repository
  *
- * Send smell data from transmit task
+ * Todo
  * Send sound data from transmit tasks
  */
 
