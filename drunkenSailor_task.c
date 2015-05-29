@@ -125,8 +125,7 @@ int genRand(int min, int max){
 		ROM_SysCtlDelay(g_ui32SysClock/3/1000);
 		i++;
 		return randValue;*/
-	return (rand() % (max - min)) + min
-	}
+	return (rand() % (max - min)) + min;
 }
 
 /*
