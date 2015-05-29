@@ -56,7 +56,7 @@ extern xSemaphoreHandle g_pProximitySemaphore;
 // System clock rate in Hz.
 //
 //****************************************************************************
-uint32_t g_ui32Drunken_SysClock;   // number of clock cycles returned from system clock
+extern uint32_t g_ui32SysClock;   // number of clock cycles returned from system clock
 
 
 
@@ -85,6 +85,7 @@ void leftTurn(){
 	int leftSpeed = 0;
 	int rightSpeed = 100;
 	setMotorSpeed(leftSpeed, rightSpeed);
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 }
 
 /*
@@ -94,6 +95,7 @@ void rightTurn(){
 	int leftSpeed = 100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 }
 
 /*
@@ -101,26 +103,29 @@ void rightTurn(){
  * closed to the front side.
  */
 void backUp(){
-	int leftSpeed = 50;
-	int rightSpeed = 50;
+	int leftSpeed = -50;
+	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
-	ROM_SysCtlDelay(g_ui32Drunken_SysClock*2/3); // delay for 2 seconds
+	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	// TODO: We might want to make the robot stop here??
 }
 
 
 /*
- * A generate random value function to generate random values for motor speed
+ * A generate random value function to generate random values for motor speed.
+ * NOTE: The stdlib RNG is seeded randomly upon system startup.
  */
 int genRand(int min, int max){
-	int randValue;
+	/*int randValue;
 	int i = 0;
 	while(1){
 		srand(i);
 		// randValue = rand()%(max-min)+min;
 		randValue = (rand()% max) + min;
-		ROM_SysCtlDelay(g_ui32Drunken_SysClock/3/1000);
+		ROM_SysCtlDelay(g_ui32SysClock/3/1000);
 		i++;
-		return randValue;
+		return randValue;*/
+	return (rand() % (max - min)) + min
 	}
 }
 
@@ -159,6 +164,8 @@ void drunken_Walk(){
 		leftTurn();
 		startWandering();
 	}else{
+		// TODO: Do we want to call start wandering again?
+		// TODO: This will roll another set of random numbers
 		startWandering();   // other than that, resume wandering
 	}
 	xSemaphoreGive(g_pProximitySemaphore);
