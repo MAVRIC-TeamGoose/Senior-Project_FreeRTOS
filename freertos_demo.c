@@ -74,6 +74,7 @@
 #include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
+#include "drunkenSailor_task.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -403,6 +404,13 @@ main(void)
 		while(1)
 		{
 			UARTprintf("\nAudio task failed to initialize\n");
+		}
+	}
+	if(DrunkenTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nDrunken walk task failed to initialize\n");
 		}
 	}
 

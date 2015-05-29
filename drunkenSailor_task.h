@@ -27,6 +27,6 @@ void startWandering();
 // drunken walk algorithm
 void drunken_Walk();
 
-extern uint32_t DrunkenTaskInit(void);
+uint32_t DrunkenTaskInit(void);
 
 #endif /* DUNKEN_WALK_H_ */

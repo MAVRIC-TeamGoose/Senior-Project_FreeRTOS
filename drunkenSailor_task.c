@@ -32,8 +32,8 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "drunkenSailer_task.h"
 #include "motors_task.h"
+#include "drunkenSailor_task.h"
 
 
 //*****************************************************************************
@@ -135,6 +135,7 @@ void startWandering(){
 	int leftSpeed = genRand(1, 100); // generate random number between 0 and 100
 	int rightSpeed = genRand(1, 100);// generate random number between 0 and 100
 	setMotorSpeed(leftSpeed, rightSpeed);
+	UARTprintf("left = %d, right = %d", leftSpeed, rightSpeed);
 }
 
 
