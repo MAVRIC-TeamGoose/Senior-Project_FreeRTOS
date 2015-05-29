@@ -17,7 +17,6 @@
  * Temperature value    |       Y
  * Proximity values     |       Y
  * Battery Level values |       Y
- * Smell values         |
  * Sound values         |
  */
 
