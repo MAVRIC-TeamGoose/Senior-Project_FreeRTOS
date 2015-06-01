@@ -1,5 +1,5 @@
 /*
- * Battery.c
+ * drunkenTask.c
  *
  * Thinh
  */
@@ -135,6 +135,9 @@ void backUp(){
 	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 	vTaskDelay(2000 / portTICK_RATE_MS);
 	// TODO: We might want to make the robot stop here??
+
+	// Add 6/1 to stop the motors
+	setMotorSpeed(0, 0);
 }
 
 
