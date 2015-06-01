@@ -1,7 +1,7 @@
 /*
  * Drunken Functions.h
  *
- *  Created on: 4/30/ 2015
+ *  Created on: 5/22/ 2015
  *      Author: Team Goose
  */
 
@@ -9,23 +9,23 @@
 #define DRUNKEN_WALK_H_
 
 // Random number generator
-int genRand(int min,int max);
+int genRand(int minSpeed,int maxSpeed);
 
 // Left turn
-void leftTurn();
+void leftTurn(void);
 
 // Right turn
-void rightTurn();
+void rightTurn(void);
 
 // Back up
-void backUp();
+void backUp(void);
 
 // wandering task
-void startWandering();
+void startWandering(void);
 
 
 // drunken walk algorithm
-void drunken_Walk();
+void drunken_Walk(void);
 
 extern uint32_t DrunkenTaskInit(void);
 

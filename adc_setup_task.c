@@ -47,7 +47,6 @@ uint8_t adc_i2c[2];    //Two byte array to hold adc value (mark as extern value 
 
 extern xSemaphoreHandle g_pTemperatureSemaphore;
 
-// Used to guard UART
 extern xSemaphoreHandle g_pUARTSemaphore;
 
 extern uint32_t g_ui32SysClock;
@@ -67,7 +66,6 @@ ConfigureADC()
 	ROM_ADCSequenceDisable(ADC0_BASE, 3); //Disable sequence before configuring it
 	ROM_ADCSequenceConfigure(ADC0_BASE, 3, ADC_TRIGGER_PROCESSOR, 0); //Use sequencer 3 to trigger at all times with a priority of 0 (highest)
 	ROM_ADCSequenceStepConfigure(ADC0_BASE, 3, 0, ADC_CTL_IE | ADC_CTL_END); //Enable sampling using sequencer 3 on Temp sensor
-
 	ROM_ADCSequenceEnable(ADC0_BASE, 3); //Enable the sequencer
 
     //

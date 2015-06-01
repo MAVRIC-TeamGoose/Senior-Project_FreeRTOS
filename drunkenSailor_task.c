@@ -1,8 +1,9 @@
 /*
- * Battery.c
+ * DrunkenWalk.c
  *
  * Thinh
  */
+
 
 
 #include <stdint.h>
@@ -27,13 +28,12 @@
 #include "driverlib/fpu.h"
 #include "priorities.h"
 #include "stdlib.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "drunkenSailer_task.h"
 #include "motors_task.h"
+#include "drunkenSailor_task.h"
 
 
 //*****************************************************************************
@@ -68,6 +68,7 @@ uint32_t g_ui32Drunken_SysClock;   // number of clock cycles returned from syste
 
 extern int32_t ranges[7]; // imported the array of sonars
 
+
 // The drunken task
 static void
 DrunkenTask(void *pvParameters)
@@ -81,7 +82,7 @@ DrunkenTask(void *pvParameters)
 /*
  * A left turn function when there is object closed to the right side of the robot
  */
-void leftTurn(){
+void leftTurn(void){
 	int leftSpeed = 0;
 	int rightSpeed = 100;
 	setMotorSpeed(leftSpeed, rightSpeed);
@@ -90,7 +91,7 @@ void leftTurn(){
 /*
  * A right turn functin when there is object closed to the left side of the robot
  */
-void rightTurn(){
+void rightTurn(void){
 	int leftSpeed = 100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
@@ -100,7 +101,7 @@ void rightTurn(){
  * A back up function that lets the robot move backward a little bit when there is object
  * closed to the front side.
  */
-void backUp(){
+void backUp(void){
 	int leftSpeed = 50;
 	int rightSpeed = 50;
 	setMotorSpeed(leftSpeed, rightSpeed);
@@ -118,7 +119,7 @@ int genRand(int min, int max){
 		srand(i);
 		// randValue = rand()%(max-min)+min;
 		randValue = (rand()% max) + min;
-		ROM_SysCtlDelay(g_ui32Drunken_SysClock/3/1000);
+		ROM_SysCtlDelay(g_ui32Drunken_SysClock/3/1000); // Delay 1ms
 		i++;
 		return randValue;
 	}
@@ -127,10 +128,13 @@ int genRand(int min, int max){
 /*
  * A let go function for the robot
  */
-void startWandering(){
+void startWandering(void){
 	int leftSpeed = genRand(1, 100); // generate random number between 0 and 100
 	int rightSpeed = genRand(1, 100);// generate random number between 0 and 100
+	xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
+	UARTprintf("Drunken sailer walk is running");
 	setMotorSpeed(leftSpeed, rightSpeed);
+	xSemaphoreGive(g_pUARTSemaphore);
 }
 
 
@@ -140,7 +144,7 @@ void startWandering(){
  * 		 2. Back up when getting too closed to an object (1 maybe): turn a certain amount of time or degreee
  * 		 3. Turn left or right for about 2 seconds and resume wandring task
  */
-void drunken_Walk(){
+void drunken_Walk(void){
 	// Start the wandering task first
 	startWandering();
 

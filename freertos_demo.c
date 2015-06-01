@@ -49,6 +49,7 @@
 
 
 
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -72,7 +73,7 @@
 #include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
-#include "tempSensor_task.h"
+#include "drunkenSailor_task.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -122,12 +123,12 @@
 // Motor Speeds
 //
 //****************************************************************************
-
-int32_t leftSpeed;
-int32_t rightSpeed;
-
-uint32_t currentRightSpeed = 0;
-uint32_t currentLeftSpeed = 0;
+//
+//int32_t leftSpeed;
+//int32_t rightSpeed;
+//
+//uint32_t currentRightSpeed = 0;
+//uint32_t currentLeftSpeed = 0;
 
 //****************************************************************************
 //
@@ -245,15 +246,15 @@ main(void)
 	// Print demo introduction.
 	//
 	UARTprintf("\033[2J\nUniversity of Washington Tacoma"
-			 "\nComputer Engineering & Systems"
-			 "\nSenior Project -"
-			 "June 4, 2015"
-			 "\nMobile Autonomous Vehicle for Research in Intelligent Control - MARVIC II"
-			 "\nSponsor: Ph.D George Mobus"
-			 "\nTeam Goose: Thinh Le, Drew Seth May, Keith Lueneburg, Brandon Thomas Dean\n\n");
+			"\nComputer Engineering & Systems"
+			"\nSenior Project - "
+			"June 4, 2015"
+			"\nMobile Autonomous Vehicle for Research in Intelligent Control - MARVIC II"
+			"\nSponsor: Ph.D George Mobus"
+			"\nTeam Goose: Thinh Le, Drew Seth May, Keith Lueneburg, Brandon Thomas Dean\n\n");
 
 
-//	UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
+	//	UARTprintf("\033[2J\nWelcome to a simple FreeRTOS Demo for the EK-TM4C1294XL!\n");
 
 	//
 	// Create a mutex to guard the UART.
@@ -290,20 +291,21 @@ main(void)
 	uint32_t returnRightSpeed();
 	// Set motor speeds
 	void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed); //rightSpeed -= 4;
-	*/
+	 */
 	//****************************************
 
-	leftSpeed = 40;
-	rightSpeed = 36;
-	ConfigurePWM();
-	ConfigureMotorGPIO();
-	setMotorSpeed(leftSpeed, rightSpeed);
+//	leftSpeed = 40;
+//	rightSpeed = 36;
+//	ConfigurePWM();
+//	ConfigureMotorGPIO();
+//	setMotorSpeed(leftSpeed, rightSpeed);
 
 	//Initialize the ADC functionality
 	if (ADCInit() != 0)
 	{
 		UARTprintf("\nADC failed to initialize\n");
 	}
+
 	// Initialize the Ultrasonic sensor task
 	if (SONAR_CONNECTED) {
 		if(SonarTaskInit() != 0)
@@ -339,10 +341,18 @@ main(void)
 		}
 	}
 
-    //
-    // Enable processor interrupts.
-    //
-    ROM_IntMasterEnable();
+	if(DrunkenTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nDrunken task failed to initialize\n");
+		}
+	}
+
+	//
+	// Enable processor interrupts.
+	//
+	ROM_IntMasterEnable();
 
 	//
 	// Start the scheduler.  This should not return.
