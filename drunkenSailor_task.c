@@ -74,7 +74,7 @@ DrunkenTask(void *pvParameters)
 {
 	while(1){
 		drunken_Walk();
-		vTaskDelay(10000/portTICK_RATE_MS);  // Delay for 10 seconds
+		vTaskDelay(500/portTICK_RATE_MS);  // Delay for 10 seconds
 	}
 }
 
@@ -85,7 +85,8 @@ void leftTurn(){
 	int leftSpeed = 0;
 	int rightSpeed = 100;
 	setMotorSpeed(leftSpeed, rightSpeed);
-	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	vTaskDelay(2000 / portTICK_RATE_MS);
 }
 
 /*
@@ -95,7 +96,30 @@ void rightTurn(){
 	int leftSpeed = 100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
-	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	vTaskDelay(2000 / portTICK_RATE_MS);
+}
+
+/*
+ * A backing left turn function when there is object closed to the right side of the robot
+ */
+void leftBackTurn(){
+	int leftSpeed = -100;
+	int rightSpeed = 0;
+	setMotorSpeed(leftSpeed, rightSpeed);
+	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	vTaskDelay(2000 / portTICK_RATE_MS);
+}
+
+/*
+ * A backing right turn functin when there is object closed to the left side of the robot
+ */
+void rightBackTurn(){
+	int leftSpeed = 0;
+	int rightSpeed = -100;
+	setMotorSpeed(leftSpeed, rightSpeed);
+	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	vTaskDelay(2000 / portTICK_RATE_MS);
 }
 
 /*
@@ -106,7 +130,10 @@ void backUp(){
 	int leftSpeed = -50;
 	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
-	ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+
+	// TODO: USE FreeRTOS sleepy function
+	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
+	vTaskDelay(2000 / portTICK_RATE_MS);
 	// TODO: We might want to make the robot stop here??
 }
 
@@ -147,17 +174,17 @@ void startWandering(){
  */
 void drunken_Walk(){
 	// Start the wandering task first
-	startWandering();
+	//startWandering();
 
 	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 	// Check for moving condition
-	if(ranges[0] < 10 || ranges[1]<10){   // if left two sonars detected objects
+	if(ranges[0] < 10 || ranges[1] < 10){   // if left two sonars detected objects
 		backUp();
-		rightTurn();
+		rightBackTurn();
 		startWandering();
-	}else if(ranges[2]<10 || ranges[3] <10 || ranges[4]<10){   // if the three front sonars detect objects
+	}else if(ranges[2]<15 || ranges[3] <15 || ranges[4]<15){   // if the three front sonars detect objects
 		backUp();
-		leftTurn();
+		leftBackTurn();
 		startWandering();
 	}else if(ranges[5] <10 || ranges[6]<10){  // if the two right sonars detect objects
 		backUp();
@@ -169,6 +196,7 @@ void drunken_Walk(){
 		startWandering();   // other than that, resume wandering
 	}
 	xSemaphoreGive(g_pProximitySemaphore);
+
 }
 
 
