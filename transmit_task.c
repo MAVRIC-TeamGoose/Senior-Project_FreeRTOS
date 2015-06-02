@@ -118,9 +118,11 @@ uint8_t g_batt_flag;
 
 uint8_t g_motor_flag;
 
+uint8_t g_audio_flag;
+
 //*****************************************************************************
 //
-// Motor Values. (PROB MOVE TO MOTOR TASK AND DECLARE EXTERN HERE)
+// Motor Values.
 //
 //*****************************************************************************
 uint32_t motor_speed;
@@ -158,6 +160,13 @@ uint8_t batt_i2c[2];
 // Frequency magnitude information to be sent to brain
 extern float32_t left_freq_magnitude[NUM_FREQS];
 extern float32_t right_freq_magnitude[NUM_FREQS];
+uint8_t audio_i2c[8]; //Eight byte array to hold audio data being sent
+
+//*****************************************************************************
+//
+// Semaphores.
+//
+//*****************************************************************************
 
 extern xSemaphoreHandle g_pTemperatureSemaphore;
 
@@ -166,6 +175,9 @@ extern xSemaphoreHandle g_pUARTSemaphore;
 extern xSemaphoreHandle g_pProximitySemaphore;
 
 extern xSemaphoreHandle g_pBatterySemaphore;
+// Guard audio frequency data (the data actually used
+// by the transmit task)
+extern xSemaphoreHandle g_pAudioSemaphore;
 
 portBASE_TYPE xHigherPriorityTaskWoken;
 
@@ -207,6 +219,7 @@ I2C0SlaveIntHandler(void)
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 0;
     	    	g_motor_flag = 0;
+    	    	g_audio_flag = 0;
     			break;
     		case PROX1DATA :
     			//Call prox function
@@ -249,33 +262,98 @@ I2C0SlaveIntHandler(void)
     			break;
 
     		case BATTDATA :
-    			//xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
     			xSemaphoreTakeFromISR(g_pBatterySemaphore, &xHigherPriorityTaskWoken);
     			//Convert adc reading into two byte array
     	    	batt_i2c[0] = (i32VoltageValue & 0xff00) >> 8;
     	    	batt_i2c[1] = (i32VoltageValue & 0x00ff);      //Lowest 8 bits
-    	    	//xSemaphoreGive(g_pBatterySemaphore);
     	    	xSemaphoreGiveFromISR(g_pBatterySemaphore, &xHigherPriorityTaskWoken);
     	    	g_temp_flag = 0;
     	    	g_prox_flag = 0;
     	    	g_batt_flag = 1;
     	    	g_motor_flag = 0;
+    	    	g_audio_flag = 0;
     			break;
 
     		case LEFTSMELLDATA :
-    			//Expressions
+    			//Get ready to send Left Bucket 1 and 2
+    			xSemaphoreTakeFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    			audio_i2c[0] = ((int) left_freq_magnitude[0] & 0xff000000) >> 24;
+    			audio_i2c[1] = ((int) left_freq_magnitude[0] & 0x00ff0000) >> 16;
+    			audio_i2c[2] = ((int) left_freq_magnitude[0] & 0x0000ff00) >> 8;
+    			audio_i2c[3] = ((int) left_freq_magnitude[0] & 0x000000ff); //Lowest 8 bits
+
+    			audio_i2c[4] = ((int) left_freq_magnitude[1] & 0xff000000) >> 24;
+    			audio_i2c[5] = ((int) left_freq_magnitude[1] & 0x00ff0000) >> 16;
+    			audio_i2c[6] = ((int) left_freq_magnitude[1] & 0x0000ff00) >> 8;
+    			audio_i2c[7] = ((int) left_freq_magnitude[1] & 0x000000ff);
+    			xSemaphoreGiveFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    	    	g_temp_flag = 0;
+    	    	g_prox_flag = 0;
+    	    	g_batt_flag = 0;
+    	    	g_motor_flag = 0;
+    			g_audio_flag = 1;
+    			//extern float32_t left_freq_magnitude[NUM_FREQS];
+    			//extern float32_t right_freq_magnitude[NUM_FREQS];
     			break;
 
     		case RIGHTSMELLDATA :
-    			//Expressions
+    			//Get ready to send Right Bucket 1 and 2
+    			xSemaphoreTakeFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    			audio_i2c[0] = ((int) right_freq_magnitude[0] & 0xff000000) >> 24;
+    			audio_i2c[1] = ((int) right_freq_magnitude[0] & 0x00ff0000) >> 16;
+    			audio_i2c[2] = ((int) right_freq_magnitude[0] & 0x0000ff00) >> 8;
+    			audio_i2c[3] = ((int) right_freq_magnitude[0] & 0x000000ff); //Lowest 8 bits
+
+    			audio_i2c[4] = ((int) right_freq_magnitude[1] & 0xff000000) >> 24;
+    			audio_i2c[5] = ((int) right_freq_magnitude[1] & 0x00ff0000) >> 16;
+    			audio_i2c[6] = ((int) right_freq_magnitude[1] & 0x0000ff00) >> 8;
+    			audio_i2c[7] = ((int) right_freq_magnitude[1] & 0x000000ff);
+    			xSemaphoreGiveFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    	    	g_temp_flag = 0;
+    	    	g_prox_flag = 0;
+    	    	g_batt_flag = 0;
+    	    	g_motor_flag = 0;
+    	    	g_audio_flag = 1;
     			break;
 
     		case LEFTSOUNDDATA :
-    			//Expressions
+    			//Get ready to send Left Bucket 3 and 4
+    			xSemaphoreTakeFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    			audio_i2c[0] = ((int) left_freq_magnitude[2] & 0xff000000) >> 24;
+    			audio_i2c[1] = ((int) left_freq_magnitude[2] & 0x00ff0000) >> 16;
+    			audio_i2c[2] = ((int) left_freq_magnitude[2] & 0x0000ff00) >> 8;
+    			audio_i2c[3] = ((int) left_freq_magnitude[2] & 0x000000ff); //Lowest 8 bits
+
+    			audio_i2c[4] = ((int) left_freq_magnitude[3] & 0xff000000) >> 24;
+    			audio_i2c[5] = ((int) left_freq_magnitude[3] & 0x00ff0000) >> 16;
+    			audio_i2c[6] = ((int) left_freq_magnitude[3] & 0x0000ff00) >> 8;
+    			audio_i2c[7] = ((int) left_freq_magnitude[3] & 0x000000ff);
+    			xSemaphoreGiveFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    	    	g_temp_flag = 0;
+    	    	g_prox_flag = 0;
+    	    	g_batt_flag = 0;
+    	    	g_motor_flag = 0;
+    	    	g_audio_flag = 1;
     			break;
 
     		case RIGHTSOUNDDATA :
-    			//Expressions
+    			//Get ready to send Right Bucket 3 and 4
+    			xSemaphoreTakeFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    			audio_i2c[0] = ((int) right_freq_magnitude[2] & 0xff000000) >> 24;
+    			audio_i2c[1] = ((int) right_freq_magnitude[2] & 0x00ff0000) >> 16;
+    			audio_i2c[2] = ((int) right_freq_magnitude[2] & 0x0000ff00) >> 8;
+    			audio_i2c[3] = ((int) right_freq_magnitude[2] & 0x000000ff); //Lowest 8 bits
+
+    			audio_i2c[4] = ((int) right_freq_magnitude[3] & 0xff000000) >> 24;
+    			audio_i2c[5] = ((int) right_freq_magnitude[3] & 0x00ff0000) >> 16;
+    			audio_i2c[6] = ((int) right_freq_magnitude[3] & 0x0000ff00) >> 8;
+    			audio_i2c[7] = ((int) right_freq_magnitude[3] & 0x000000ff);
+    			xSemaphoreGiveFromISR(g_pAudioSemaphore, &xHigherPriorityTaskWoken);
+    	    	g_temp_flag = 0;
+    	    	g_prox_flag = 0;
+    	    	g_batt_flag = 0;
+    	    	g_motor_flag = 0;
+    	    	g_audio_flag = 1;
     			break;
 
     		case MOTORDATA :
@@ -356,6 +434,18 @@ I2C0SlaveIntHandler(void)
     				g_batt_flag = 0;
     			}
     			break;
+    		case LEFTSMELLDATA :
+    			sendAudio();
+    			break;
+    		case RIGHTSMELLDATA :
+    			sendAudio();
+    			break;
+    		case LEFTSOUNDDATA :
+    			sendAudio();
+    			break;
+    		case RIGHTSOUNDDATA :
+    			sendAudio();
+    			break;
     	}
     }
 
@@ -429,6 +519,36 @@ sendProx(uint8_t sensor)
 }
 
 void
+sendAudio()
+{
+	if (g_audio_flag == 1) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[0]);
+		g_audio_flag = 2;
+	} else if (g_audio_flag == 2) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[1]);
+		g_audio_flag = 3;
+	} else if (g_audio_flag == 3) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[2]);
+		g_audio_flag = 4;
+	} else if (g_audio_flag == 4) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[3]);
+		g_audio_flag = 5;
+	} else if (g_audio_flag == 5) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[4]);
+		g_audio_flag = 6;
+	} else if (g_audio_flag == 6) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[5]);
+		g_audio_flag = 7;
+	} else if (g_audio_flag == 7) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[6]);
+		g_audio_flag = 8;
+	} else if (g_audio_flag == 8) {
+		MAP_I2CSlaveDataPut(I2C0_BASE, audio_i2c[7]);
+		g_audio_flag = 0;
+	}
+}
+
+void
 formatProx(uint8_t sensor)
 {
 	//Convert proximity into two byte array
@@ -440,6 +560,7 @@ formatProx(uint8_t sensor)
 	g_batt_flag = 0;
 	g_temp_flag = 0;
 	g_motor_flag = 0;
+	g_audio_flag = 0;
 }
 
 //*****************************************************************************

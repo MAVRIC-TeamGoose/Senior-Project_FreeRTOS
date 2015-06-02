@@ -17,4 +17,5 @@ extern uint32_t TransmitTaskInit(void);
 void ConfigureI2C0(void);
 void sendProx(uint8_t sensor);
 void formatProx(uint8_t sensor);
+void sendAudio();
 #endif /* TRANSMIT_TASK_H_ */
