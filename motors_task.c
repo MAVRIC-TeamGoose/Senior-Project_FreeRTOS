@@ -222,7 +222,7 @@ void setMotorSpeed(int32_t leftSpeed, int32_t rightSpeed)
 	if (rightSpeed < 0)
 	{
 		// right IN_A = 1
-		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, 1);
+		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_2, GPIO_PIN_2);
 		// right IN_B = 0
 		MAP_GPIOPinWrite(GPIO_PORTM_BASE, GPIO_PIN_5, 0);
 

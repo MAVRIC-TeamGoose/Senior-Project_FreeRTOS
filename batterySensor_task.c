@@ -38,6 +38,10 @@
 uint32_t i32VoltageValue;
 
 
+/*
+ * Compensate for average voltage drop over battery wires
+ */
+#define BATTERY_WIRE_DROP_MV 180
 
 //*****************************************************************************
 //
@@ -165,7 +169,8 @@ void Battery_Voltage_Out(void)
 		ROM_GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_2, (ui8PinData + 3)); // Turn on Pin 2
 		//UARTprintf("About to sample the voltage level.......\n");
 		xSemaphoreTake(g_pBatterySemaphore, portMAX_DELAY);
-		i32VoltageValue = Battery_Level_Conversion();
+		// Add voltage drop over battery wires to get better value for battery voltage
+		i32VoltageValue = Battery_Level_Conversion() + BATTERY_WIRE_DROP_MV;
 		//UARTprintf("Done sampling!!\n\n");
 		xSemaphoreGive(g_pBatterySemaphore);
 

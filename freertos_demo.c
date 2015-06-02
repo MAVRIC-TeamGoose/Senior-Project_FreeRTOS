@@ -74,6 +74,7 @@
 #include "audio.h"
 #include "motors_task.h"
 #include "batterySensor_task.h"
+#include "drunkenSailor_task.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -202,7 +203,7 @@ uint32_t waitForStart()
 	uint32_t newSeed;
 
 	// Enable peripherals
-	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ);
+	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
 
 	// Enable Startup GPIO
@@ -214,13 +215,13 @@ uint32_t waitForStart()
 	MAP_TimerConfigure(TIMER4_BASE, TIMER_CFG_PERIODIC_UP);
 
 	// Set up button
-	MAP_GPIOPinTypeGPIOInput(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0);
-	MAP_GPIOIntTypeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_LOW_LEVEL);
-	MAP_GPIODirModeSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
-	MAP_GPIOPadConfigSet(GPIO_PORTJ_AHB_BASE, GPIO_PIN_0,
-	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
-	MAP_GPIOIntEnable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
-	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOPinTypeGPIOInput(GPIO_PORTL_BASE, GPIO_PIN_0);
+	MAP_GPIOIntTypeSet(GPIO_PORTL_BASE, GPIO_PIN_0, GPIO_HIGH_LEVEL);
+	MAP_GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_0, GPIO_DIR_MODE_IN);
+	MAP_GPIOPadConfigSet(GPIO_PORTL_BASE, GPIO_PIN_0,
+	                         GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
+	MAP_GPIOIntEnable(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
 
 	// Set up MAVRIC Program Start GPIO
 	//MAP_GPIOPinTypeGPIOOutput(GPIO_PORTL_BASE, GPIO_PIN_0);
@@ -230,7 +231,7 @@ uint32_t waitForStart()
 	MAP_TimerEnable(TIMER4_BASE, TIMER_A);
 
 	// Wait for button
-	while(!(MAP_GPIOIntStatus(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0)) {}
+	while(!(MAP_GPIOIntStatus(GPIO_PORTL_BASE, GPIO_INT_PIN_0) & GPIO_INT_PIN_0)) {}
 
 	// Capture timer value
 	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
@@ -242,9 +243,9 @@ uint32_t waitForStart()
 	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_TIMER4);
 
 	// Disable button and shutdown GPIOJ
-	MAP_GPIOIntDisable(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
-	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
-	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_GPIOJ);
+	MAP_GPIOIntDisable(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
+	MAP_GPIOIntClear(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
+	MAP_SysCtlPeripheralDisable(SYSCTL_PERIPH_GPIOL);
 
 	// Return timer
 	return newSeed;
@@ -413,6 +414,13 @@ main(void)
 		while(1)
 		{
 			UARTprintf("\nAudio task failed to initialize\n");
+		}
+	}
+	if(DrunkenTaskInit() != 0)
+	{
+		while(1)
+		{
+			UARTprintf("\nDrunken walk task failed to initialize\n");
 		}
 	}
 

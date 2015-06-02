@@ -36,7 +36,7 @@
 #define PRIORITY_BATTERY_TASK	  3
 #define PRIORITY_AUDIO_TASK       5
 #define PRIORITY_TEMPERATURE_TASK 3
-#define PRIORITY_DRUNKEN_TASK	  3
+#define PRIORITY_DRUNKEN_TASK	  4
 
 // ARM interrupt priorities: low number = high priority
 
