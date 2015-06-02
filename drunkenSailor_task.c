@@ -181,15 +181,15 @@ void drunken_Walk(){
 
 	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 	// Check for moving condition
-	if(ranges[0] < 10 || ranges[1] < 10){   // if left two sonars detected objects
+	if(ranges[0] < 10 && ranges[1] < 10){   // if left two sonars detected objects
 		backUp();
 		rightBackTurn();
 		startWandering();
-	}else if(ranges[2]<15 || ranges[3] <15 || ranges[4]<15){   // if the three front sonars detect objects
+	}else if(ranges[2]<15 && ranges[3] <15 && ranges[4]<15){   // if the three front sonars detect objects
 		backUp();
 		leftBackTurn();
 		startWandering();
-	}else if(ranges[5] <10 || ranges[6]<10){  // if the two right sonars detect objects
+	}else if(ranges[5] <10 && ranges[6]<10){  // if the two right sonars detect objects
 		backUp();
 		leftTurn();
 		startWandering();
