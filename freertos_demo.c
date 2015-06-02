@@ -206,7 +206,7 @@ uint32_t waitForStart()
 	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER4);
 
 	// Enable Startup GPIO
-	MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);
+	//MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOL);
 
 	MAP_SysCtlDelay(2);
 
@@ -223,8 +223,8 @@ uint32_t waitForStart()
 	MAP_GPIOIntClear(GPIO_PORTJ_AHB_BASE, GPIO_INT_PIN_0);
 
 	// Set up MAVRIC Program Start GPIO
-	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTL_BASE, GPIO_PIN_0);
-	MAP_GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_0, GPIO_DIR_MODE_OUT);
+	//MAP_GPIOPinTypeGPIOOutput(GPIO_PORTL_BASE, GPIO_PIN_0);
+	//MAP_GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_0, GPIO_DIR_MODE_OUT);
 
 	// Start timer
 	MAP_TimerEnable(TIMER4_BASE, TIMER_A);
@@ -235,7 +235,7 @@ uint32_t waitForStart()
 	// Capture timer value
 	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
 	// Send signal to Raspberry Pi
-	MAP_GPIOPinWrite(GPIO_PORTL_BASE, GPIO_PIN_0, 1);
+	//MAP_GPIOPinWrite(GPIO_PORTL_BASE, GPIO_PIN_0, 1);
 
 	// Disable and shutdown timer
 	MAP_TimerDisable(TIMER4_BASE, TIMER_A);
