@@ -13,6 +13,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <temperature_task.h>
 
 #include "inc/hw_adc.h" //Had to change one line here on line 416 from 3 to 1
 #include "inc/hw_memmap.h"
@@ -34,7 +35,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-#include "adc_setup_task.h"
 
 //*****************************************************************************
 //
@@ -135,7 +135,7 @@ Timer1IntHandler(void)
 	ROM_ADCSequenceDataGet(ADC0_BASE, 3, adc_value); //Get data from Sequencer 3
 
 	xSemaphoreTakeFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
-	UARTprintf("Temp:%d\n", adc_value[0]);
+	UARTprintf("\nTemp:%d\n", adc_value[0]);
 	xSemaphoreGiveFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
 
 	xSemaphoreGiveFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);

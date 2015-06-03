@@ -1,8 +1,8 @@
 /*
  * Drunken Functions.h
  *
- *  Created on: 4/30/ 2015
- *      Author: Team Goose
+ *  Created on: 5/1/ 2015
+ *  Author:Thinh- Team Goose
  */
 
 #ifndef DRUNKEN_WALK_H_

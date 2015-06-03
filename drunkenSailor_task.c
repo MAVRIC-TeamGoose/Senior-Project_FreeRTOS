@@ -1,7 +1,7 @@
 /*
  * drunkenTask.c
- *
- * Thinh
+ * Thinh-Goose Team
+ * 5/1/2015
  */
 
 
@@ -44,7 +44,9 @@
 #define DRUNKENTASKSTACKSIZE        128         // Stack size in words
 
 
-// Semaphore for using the UART
+/** Semaphore for using the UART and  proximity
+ *
+ */
 extern xSemaphoreHandle g_pUARTSemaphore;
 
 extern xSemaphoreHandle g_pProximitySemaphore;
@@ -74,52 +76,32 @@ DrunkenTask(void *pvParameters)
 {
 	while(1){
 		drunken_Walk();
-		vTaskDelay(500/portTICK_RATE_MS);  // Delay for 10 seconds
+//		vTaskDelay(500/portTICK_RATE_MS);  // Delay for 10 seconds
 	}
 }
 
-/*
- * A left turn function when there is object closed to the right side of the robot
- */
-void leftTurn(){
-	int leftSpeed = 0;
-	int rightSpeed = 100;
-	setMotorSpeed(leftSpeed, rightSpeed);
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
-}
-
-/*
- * A right turn functin when there is object closed to the left side of the robot
- */
-void rightTurn(){
-	int leftSpeed = 100;
-	int rightSpeed = 0;
-	setMotorSpeed(leftSpeed, rightSpeed);
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
-}
 
 /*
  * A backing left turn function when there is object closed to the right side of the robot
  */
-void leftBackTurn(){
+void leftTurn(){
 	int leftSpeed = -100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
 	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
+	vTaskDelay(500 / portTICK_RATE_MS);
 }
 
+
 /*
- * A backing right turn functin when there is object closed to the left side of the robot
+ * A backing right turn function when there is object closed to the left side of the robot
  */
-void rightBackTurn(){
+void rightTurn(){
 	int leftSpeed = 0;
 	int rightSpeed = -100;
 	setMotorSpeed(leftSpeed, rightSpeed);
 	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
+	vTaskDelay(500 / portTICK_RATE_MS);
 }
 
 /*
@@ -130,14 +112,11 @@ void backUp(){
 	int leftSpeed = -50;
 	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
-
-	// TODO: USE FreeRTOS sleepy function
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 	vTaskDelay(2000 / portTICK_RATE_MS);
-	// TODO: We might want to make the robot stop here??
 
-	// Add 6/1 to stop the motors
+	//  Stop the motors
 	setMotorSpeed(0, 0);
+	vTaskDelay(300 / portTICK_RATE_MS);
 }
 
 
@@ -162,40 +141,35 @@ int genRand(int min, int max){
  * A let go function for the robot
  */
 void startWandering(){
-	int leftSpeed = genRand(1, 100); // generate random number between 0 and 100
-	int rightSpeed = genRand(1, 100);// generate random number between 0 and 100
+	int leftSpeed = genRand(1, 100); // generate random number between 1 and 100
+	int rightSpeed = genRand(1, 100);// generate random number between 1 and 100
 	setMotorSpeed(leftSpeed, rightSpeed);
-	UARTprintf("left = %d, right = %d", leftSpeed, rightSpeed);
+	UARTprintf("left = %d, right = %d\n", leftSpeed, rightSpeed);
 }
 
 
 /**
- * The drunk walk for the robot to search around the enviroment
+ * The drunk walk for the robot to foraging the enviroment
  * Note: 1. Start random speeds for both motors
- * 		 2. Back up when getting too closed to an object (1 maybe): turn a certain amount of time or degreee
- * 		 3. Turn left or right for about 2 seconds and resume wandring task
+ * 		 2. Back up when getting too closed to an object, turn a certain amount of time into another direction
+ * 		 3. Turn left or right for about 0.5 second and resume wandring task
  */
 void drunken_Walk(){
-	// Start the wandering task first
-	//startWandering();
-
 	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 	// Check for moving condition
-	if(ranges[0] < 10 && ranges[1] < 10){   // if left two sonars detected objects
+	if(ranges[0] < 25 && ranges[1] < 25){   // if left two sonars detected objects
 		backUp();
-		rightBackTurn();
+		rightTurn();
 		startWandering();
-	}else if(ranges[2]<15 && ranges[3] <15 && ranges[4]<15){   // if the three front sonars detect objects
+	}else if((ranges[2]<30 && ranges[3] <30 && ranges[4]<30)||(ranges[2]<30 && ranges[3]<30)|| (ranges[3]<30 && ranges[4]<30)){   // if the three front sonars detect objects
 		backUp();
-		leftBackTurn();
+		leftTurn();
 		startWandering();
-	}else if(ranges[5] <10 && ranges[6]<10){  // if the two right sonars detect objects
+	}else if(ranges[5] <25 && ranges[6]<25){  // if the two right sonars detect objects
 		backUp();
 		leftTurn();
 		startWandering();
 	}else{
-		// TODO: Do we want to call start wandering again?
-		// TODO: This will roll another set of random numbers
 		startWandering();   // other than that, resume wandering
 	}
 	xSemaphoreGive(g_pProximitySemaphore);
@@ -214,7 +188,7 @@ DrunkenTaskInit(void)
 {
 
 	//
-	// Create the switch task.
+	// Create the drunken task.
 	//
 	if(xTaskCreate(DrunkenTask, (signed portCHAR *)"DrunkenWalk",
 			DRUNKENTASKSTACKSIZE, NULL, tskIDLE_PRIORITY +
