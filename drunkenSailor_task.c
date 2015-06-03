@@ -74,52 +74,32 @@ DrunkenTask(void *pvParameters)
 {
 	while(1){
 		drunken_Walk();
-		vTaskDelay(500/portTICK_RATE_MS);  // Delay for 10 seconds
+//		vTaskDelay(500/portTICK_RATE_MS);  // Delay for 10 seconds
 	}
 }
 
-/*
- * A left turn function when there is object closed to the right side of the robot
- */
-void leftTurn(){
-	int leftSpeed = 0;
-	int rightSpeed = 100;
-	setMotorSpeed(leftSpeed, rightSpeed);
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
-}
-
-/*
- * A right turn functin when there is object closed to the left side of the robot
- */
-void rightTurn(){
-	int leftSpeed = 100;
-	int rightSpeed = 0;
-	setMotorSpeed(leftSpeed, rightSpeed);
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
-}
 
 /*
  * A backing left turn function when there is object closed to the right side of the robot
  */
-void leftBackTurn(){
+void leftTurn(){
 	int leftSpeed = -100;
 	int rightSpeed = 0;
 	setMotorSpeed(leftSpeed, rightSpeed);
 	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
+	vTaskDelay(500 / portTICK_RATE_MS);
 }
+
 
 /*
  * A backing right turn functin when there is object closed to the left side of the robot
  */
-void rightBackTurn(){
+void rightTurn(){
 	int leftSpeed = 0;
 	int rightSpeed = -100;
 	setMotorSpeed(leftSpeed, rightSpeed);
 	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
-	vTaskDelay(2000 / portTICK_RATE_MS);
+	vTaskDelay(500 / portTICK_RATE_MS);
 }
 
 /*
@@ -138,6 +118,7 @@ void backUp(){
 
 	// Add 6/1 to stop the motors
 	setMotorSpeed(0, 0);
+	vTaskDelay(500 / portTICK_RATE_MS);
 }
 
 
@@ -181,15 +162,15 @@ void drunken_Walk(){
 
 	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 	// Check for moving condition
-	if(ranges[0] < 10 && ranges[1] < 10){   // if left two sonars detected objects
+	if(ranges[0] < 25 && ranges[1] < 25){   // if left two sonars detected objects
 		backUp();
-		rightBackTurn();
+		rightTurn();
 		startWandering();
-	}else if(ranges[2]<15 && ranges[3] <15 && ranges[4]<15){   // if the three front sonars detect objects
+	}else if((ranges[2]<30 && ranges[3] <30 && ranges[4]<30)||(ranges[2]<30 && ranges[3]<30)|| (ranges[3]<30 && ranges[4]<30)){   // if the three front sonars detect objects
 		backUp();
-		leftBackTurn();
+		leftTurn();
 		startWandering();
-	}else if(ranges[5] <10 && ranges[6]<10){  // if the two right sonars detect objects
+	}else if(ranges[5] <25 && ranges[6]<25){  // if the two right sonars detect objects
 		backUp();
 		leftTurn();
 		startWandering();

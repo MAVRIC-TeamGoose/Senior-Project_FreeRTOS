@@ -135,7 +135,7 @@ Timer1IntHandler(void)
 	ROM_ADCSequenceDataGet(ADC0_BASE, 3, adc_value); //Get data from Sequencer 3
 
 	xSemaphoreTakeFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
-	UARTprintf("Temp:%d\n", adc_value[0]);
+	UARTprintf("\nTemp:%d\n", adc_value[0]);
 	xSemaphoreGiveFromISR(g_pUARTSemaphore, &xHigherPriorityTaskWoken);
 
 	xSemaphoreGiveFromISR(g_pTemperatureSemaphore, &xHigherPriorityTaskWoken);
