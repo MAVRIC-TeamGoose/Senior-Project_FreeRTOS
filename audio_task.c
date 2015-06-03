@@ -10,6 +10,7 @@
  *               Brandon Thomas
  */
 
+
 #include <stdbool.h>
 #include "arm_math.h"
 #include "arm_const_structs.h"
@@ -33,8 +34,8 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "audio_task.h"
 
-#include "audio.h"
 
 /*
  *  Global variables

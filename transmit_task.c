@@ -32,6 +32,7 @@
  * pinout of the Raspberry Pi. We are using Pins 2 and 5.
  */
 
+#include <audio_task.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "arm_math.h"
@@ -54,7 +55,6 @@
 #include "utils/uartstdio.h"
 
 #include "transmit_task.h"
-#include "audio.h"
 #include "priorities.h"
 #include "FreeRTOS.h"
 #include "task.h"

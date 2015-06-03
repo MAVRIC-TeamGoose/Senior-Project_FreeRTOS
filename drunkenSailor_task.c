@@ -1,7 +1,7 @@
 /*
  * drunkenTask.c
- *
- * Thinh
+ * Thinh-Goose Team
+ * 5/1/2015
  */
 
 
@@ -44,7 +44,9 @@
 #define DRUNKENTASKSTACKSIZE        128         // Stack size in words
 
 
-// Semaphore for using the UART
+/** Semaphore for using the UART and  proximity
+ *
+ */
 extern xSemaphoreHandle g_pUARTSemaphore;
 
 extern xSemaphoreHandle g_pProximitySemaphore;
@@ -92,7 +94,7 @@ void leftTurn(){
 
 
 /*
- * A backing right turn functin when there is object closed to the left side of the robot
+ * A backing right turn function when there is object closed to the left side of the robot
  */
 void rightTurn(){
 	int leftSpeed = 0;
@@ -110,15 +112,11 @@ void backUp(){
 	int leftSpeed = -50;
 	int rightSpeed = -50;
 	setMotorSpeed(leftSpeed, rightSpeed);
-
-	// TODO: USE FreeRTOS sleepy function
-	//ROM_SysCtlDelay(g_ui32SysClock*2/3); // delay for 2 seconds
 	vTaskDelay(2000 / portTICK_RATE_MS);
-	// TODO: We might want to make the robot stop here??
 
-	// Add 6/1 to stop the motors
+	//  Stop the motors
 	setMotorSpeed(0, 0);
-	vTaskDelay(500 / portTICK_RATE_MS);
+	vTaskDelay(300 / portTICK_RATE_MS);
 }
 
 
@@ -143,23 +141,20 @@ int genRand(int min, int max){
  * A let go function for the robot
  */
 void startWandering(){
-	int leftSpeed = genRand(1, 100); // generate random number between 0 and 100
-	int rightSpeed = genRand(1, 100);// generate random number between 0 and 100
+	int leftSpeed = genRand(1, 100); // generate random number between 1 and 100
+	int rightSpeed = genRand(1, 100);// generate random number between 1 and 100
 	setMotorSpeed(leftSpeed, rightSpeed);
-	UARTprintf("left = %d, right = %d", leftSpeed, rightSpeed);
+	UARTprintf("left = %d, right = %d\n", leftSpeed, rightSpeed);
 }
 
 
 /**
- * The drunk walk for the robot to search around the enviroment
+ * The drunk walk for the robot to foraging the enviroment
  * Note: 1. Start random speeds for both motors
- * 		 2. Back up when getting too closed to an object (1 maybe): turn a certain amount of time or degreee
- * 		 3. Turn left or right for about 2 seconds and resume wandring task
+ * 		 2. Back up when getting too closed to an object, turn a certain amount of time into another direction
+ * 		 3. Turn left or right for about 0.5 second and resume wandring task
  */
 void drunken_Walk(){
-	// Start the wandering task first
-	//startWandering();
-
 	xSemaphoreTake(g_pProximitySemaphore, portMAX_DELAY);
 	// Check for moving condition
 	if(ranges[0] < 25 && ranges[1] < 25){   // if left two sonars detected objects
@@ -175,8 +170,6 @@ void drunken_Walk(){
 		leftTurn();
 		startWandering();
 	}else{
-		// TODO: Do we want to call start wandering again?
-		// TODO: This will roll another set of random numbers
 		startWandering();   // other than that, resume wandering
 	}
 	xSemaphoreGive(g_pProximitySemaphore);
@@ -195,7 +188,7 @@ DrunkenTaskInit(void)
 {
 
 	//
-	// Create the switch task.
+	// Create the drunken task.
 	//
 	if(xTaskCreate(DrunkenTask, (signed portCHAR *)"DrunkenWalk",
 			DRUNKENTASKSTACKSIZE, NULL, tskIDLE_PRIORITY +

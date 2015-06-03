@@ -1,7 +1,8 @@
 /*
  * Battery.c
  *
- * Thinh
+ * Thinh-Goose Team
+ * Date: Mar 4, 2015
  */
 
 
@@ -51,7 +52,7 @@ uint32_t i32VoltageValue;
 #define BATTERYTASKSTACKSIZE        128         // Stack size in words
 
 
-// Semaphore for using the UART
+// Semaphore for using the UART and battery value
 extern xSemaphoreHandle g_pUARTSemaphore;
 
 extern xSemaphoreHandle g_pBatterySemaphore;
