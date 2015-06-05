@@ -220,7 +220,7 @@ uint32_t waitForStart()
 	MAP_GPIOIntEnable(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
 	MAP_GPIOIntClear(GPIO_PORTL_BASE, GPIO_INT_PIN_0);
 
-	// Set up MAVRIC Program Start GPIO JHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+	// Set up MAVRIC Program Start
 	MAP_GPIOPinTypeGPIOOutput(GPIO_PORTL_BASE, GPIO_PIN_3);
 	MAP_GPIODirModeSet(GPIO_PORTL_BASE, GPIO_PIN_3, GPIO_DIR_MODE_OUT);
 
@@ -232,7 +232,7 @@ uint32_t waitForStart()
 
 	// Capture timer value
 	newSeed = MAP_TimerValueGet(TIMER4_BASE, TIMER_A);
-	// Send signal to Raspberry Pi HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+	// Send signal to Raspberry Pi
 	MAP_GPIOPinWrite(GPIO_PORTL_BASE, GPIO_PIN_3, 8);
 
 	// Disable and shutdown timer

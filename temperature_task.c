@@ -1,13 +1,13 @@
 /*
- * Author : Drew May
- * Date   : March 5th 2015
+ * Author : Team Goose
+ * Date   : June 3rd 2015
  * Version: 1.0
  * Summary: Sets up ADC functionality for MAVRIC
  */
 
 /*
  * Pin Connections
- * N/A Currently
+ * PE3
  */
 
 
